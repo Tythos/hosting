@@ -1,38 +1,35 @@
-resource "docker_image" "nginx" {
-  name = "nginx:latest"
-}
-
 resource "docker_container" "nginx_container" {
-  name = "nginx"
-  image = docker_image.nginx.image_id
+  name    = "nginx-test"
+  image   = docker_image.nginx_image.image_id
+  restart = "unless-stopped"
 
   networks_advanced {
     name = docker_network.web_network.name
   }
 
-  ports {
-    internal = 80
-    external = 80
+
+  labels {
+    label = "traefik.enable"
+    value = "true"
   }
 
-#  ports {
-#    internal = 443
-#    external = 443
-#  }
+  labels {
+    label = "traefik.http.routers.nginx-test.rule"
+    value = "Host(`test.${var.HOST_DOMAIN}`)"
+  }
 
-#  volumes {
-#    host_path = "${path.cwd}/nginx/conf.d"
-#    container_path = "/etc/nginx/conf.d"
-#  }
+  labels {
+    label = "traefik.http.routers.nginx-test.entrypoints"
+    value = "websecure"
+  }
 
-#  volumes {
-#    host_path = "${path.cwd}/nginx/html"
-#    container_path = "/usr/share/nginx/html"
-#  }
+  labels {
+    label = "traefik.http.routers.nginx-test.tls.certresolver"
+    value = "letsencrypt"
+  }
 
-#  volumes {
-#    host_path = "${path.cwd}/nginx.certs"
-#    container_path = "/etc/nginx/certs"
-#  }
+  labels {
+    label = "traefik.http.services.nginx-test.loadbalancer.server.port"
+    value = "80"
+  }
 }
-

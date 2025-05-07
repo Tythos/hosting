@@ -7,6 +7,10 @@ resource "docker_container" "nginx_container" {
     name = docker_network.web_network.name
   }
 
+  volumes {
+    host_path      = abspath("${path.module}/nginx-content")
+    container_path = "/usr/share/nginx/html"
+  }
 
   labels {
     label = "traefik.enable"
@@ -31,5 +35,9 @@ resource "docker_container" "nginx_container" {
   labels {
     label = "traefik.http.services.nginx-test.loadbalancer.server.port"
     value = "80"
+  }
+
+  provisioner "local-exec" {
+    command = "mkdir -p ${path.module}/nginx-content && echo '<html><body><h1>Traefik Test</h1><p>If you see this, your Traefik setup is working!</p></body></html>' > ${path.module}/nginx-content/index.html"
   }
 }

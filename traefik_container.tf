@@ -2,6 +2,7 @@ resource "docker_container" "traefik_container" {
   name    = "traefik"
   image   = docker_image.traefik_image.image_id
   restart = "unless-stopped"
+  user    = "root"
 
   networks_advanced {
     name = docker_network.web_network.name

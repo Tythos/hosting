@@ -1,51 +1,16 @@
 version: '3'
 
 services:
-  # traefik:
-  #   image: traefik:v2.10
-  #   container_name: traefik
-  #   restart: unless-stopped
-  #   security_opt:
-  #     - no-new-privileges:true
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - ./data/traefik.yml:/traefik.yml:ro
-  #     - ./data/acme.json:/acme.json
-  #   networks:
-  #     - proxy
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.traefik.entrypoints=http"
-  #     - "traefik.http.routers.traefik.rule=Host(`traefik.tythos.io`)"
-  #     - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
-  #     - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
-  #     - "traefik.http.routers.traefik-secure.entrypoints=https"
-  #     - "traefik.http.routers.traefik-secure.rule=Host(`traefik.tythos.io`)"
-  #     - "traefik.http.routers.traefik-secure.tls=true"
-  #     - "traefik.http.routers.traefik-secure.tls.certresolver=letsencrypt"
-  #     - "traefik.http.routers.traefik-secure.service=api@internal"
+  reverse-proxy:
+    image: traefik:v3.4
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
-  example-service:
-    image: nginx:latest
-    container_name: example-service
-    restart: unless-stopped
-    networks:
-      - proxy
+  whoami:
+    image: traefik/whoami
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.example.entrypoints=http"
-      - "traefik.http.routers.example.rule=Host(`example.tythos.io`)"
-      - "traefik.http.middlewares.example-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.example.middlewares=example-https-redirect"
-      - "traefik.http.routers.example-secure.entrypoints=https"
-      - "traefik.http.routers.example-secure.rule=Host(`example.tythos.io`)"
-      - "traefik.http.routers.example-secure.tls=true"
-      - "traefik.http.routers.example-secure.tls.certresolver=letsencrypt"
-
-networks:
-  proxy:
-    external: true
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"

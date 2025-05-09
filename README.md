@@ -38,7 +38,7 @@ To define a new service:
 
 1. Add a new `docker_container` resource, mounting against any particular persistent storage requirements
 
-1. Add labels to the `docker_container` indicating how it should be identified/routed
+1. Add labels to the `docker_container` indicating how it should be identified/routed; for secured endpoints, the router labels should define relevant TLS options
 
 ## TODO
 

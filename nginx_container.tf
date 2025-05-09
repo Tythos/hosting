@@ -10,4 +10,19 @@ resource "docker_container" "nginx_container" {
     label = "traefik.http.routers.nginx.rule"
     value = "Host(`nginx.${var.HOST_NAME}`)"
   }
+
+  labels {
+    label = "traefik.http.routers.nginx.tls"
+    value = "true"
+  }
+
+  labels {
+    label = "traefik.http.routers.nginx.tls.certresolver"
+    value = "letsencrypt"
+  }
+
+  labels {
+    label = "traefik.http.routers.nginx.entrypoints"
+    value = "websecure"
+  }
 }

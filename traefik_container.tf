@@ -1,10 +1,13 @@
 resource "docker_container" "traefik_container" {
-  name    = "traefik_container"
-  image   = docker_image.traefik_image.image_id
-  command = ["--api.insecure=true", "--providers.docker"]
+  name  = "traefik_container"
+  image = docker_image.traefik_image.image_id
+  command = [
+    "--api.insecure=true",
+    "--providers.docker"
+  ]
 
   networks_advanced {
-    name = docker_network.hosting_default_network.name
+    name = docker_network.hosting_network.name
   }
 
   ports {

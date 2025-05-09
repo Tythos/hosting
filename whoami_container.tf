@@ -3,7 +3,7 @@ resource "docker_container" "whooami_container" {
   name  = "whoami_container"
 
   networks_advanced {
-    name = docker_network.hosting_default_network.name
+    name = docker_network.hosting_network.name
   }
 
   labels {

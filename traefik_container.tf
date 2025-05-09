@@ -1,6 +1,7 @@
 resource "docker_container" "traefik_container" {
   name  = "traefik_container"
   image = docker_image.traefik_image.image_id
+  
   command = [
     "--api.insecure=true",
     "--providers.docker",

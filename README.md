@@ -44,7 +44,7 @@ To define a new service:
 
 - [x] Routing (and load balancing)
 
-- [ ] HTTPS / TLS
+- [x] HTTPS / TLS
 
 - [ ] Other middleware (redirect?)
 

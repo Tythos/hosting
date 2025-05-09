@@ -1,4 +1,4 @@
-resource "docker_container" "whooami_container" {
+resource "docker_container" "whoami_container" {
   image = docker_image.whoami_image.image_id
   name  = "whoami_container"
 
@@ -8,6 +8,6 @@ resource "docker_container" "whooami_container" {
 
   labels {
     label = "traefik.http.routers.whoami.rule"
-    value = "Host(`whoami.tythos.io`)"
+    value = "Host(`whoami.${var.HOST_NAME}`)"
   }
 }

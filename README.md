@@ -52,9 +52,43 @@ To define a new service:
 
 - [x] Initial nginx-based service
 
-- [ ] Initial static content host via above from specific volume
+- [x] Initial static content host via above from specific volume
 
-- [ ] Migrate volume contents
+- Migrate volume contents
+
+  - [x] Smogwarts
+   
+  - [ ] Resume
+
+  - [ ] Non-hosted
+
+  - [ ] Macercy
+
+  - [ ] Aero?
+
+  - [ ] Culinary Colqhoun?
+
+  - [ ] Conferences
+
+  - [ ] Controls
+
+  - [ ] Creatives
+
+  - [ ] KMZ/Geoint?
+
+  - [ ] Leroy
+
+  - [ ] No Debt Unpaid
+
+  - [ ] Soduko/Kifiew
+
+  - [ ] The Writing Horse
+
+  - [ ] Wallpapers
+
+  - [ ] Any other interesting top-level file contents
+
+- [ ] Honestly it wouldn't be a bad idea to demo and/or port a PHP app from the above list  
 
 - [ ] We've exposed basic logging metrics in a prometheus format, but these should be aggregated and exposed for management/monitoring
 
@@ -63,3 +97,5 @@ To define a new service:
 - [ ] Migrate to OpenTofu?
 
 - [ ] Demonstrate/pathfind a database integration of some kind?
+
+- [ ] Redirect from tythos.net? (or replace TLD)

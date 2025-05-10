@@ -22,3 +22,8 @@ variable "CF_DNS_API_TOKEN" {
   type        = string
   description = "The DNS API token to use for Cloudflare DNS updates"
 }
+
+variable "SMOGWARTS_MOUNT" {
+  type        = string
+  description = "Static content path for Smogwarts service"
+}

@@ -1,9 +1,9 @@
 resource "docker_container" "traefik_container" {
   name  = "traefik_container"
   image = docker_image.traefik_image.image_id
-  
+
   command = [
-    "--api.insecure=true",
+    "--api.dashboard=true",
     "--providers.docker",
     "--entrypoints.web.address=:80",
     "--entrypoints.websecure.address=:443",
@@ -39,11 +39,6 @@ resource "docker_container" "traefik_container" {
     external = 443
   }
 
-  ports {
-    internal = 8080
-    external = 8080
-  }
-
   volumes {
     host_path      = "/var/run/docker.sock"
     container_path = "/var/run/docker.sock"
@@ -52,5 +47,40 @@ resource "docker_container" "traefik_container" {
   volumes {
     host_path      = "/etc/letsencrypt"
     container_path = "/etc/letsencrypt"
+  }
+
+  labels {
+    label = "traefik.http.routers.dashboard.rule"
+    value = "Host(`dashboard.${var.HOST_NAME}`)"
+  }
+
+  labels {
+    label = "traefik.http.routers.dashboard.tls"
+    value = "true"
+  }
+
+  labels {
+    label = "traefik.http.routers.dashboard.tls.certresolver"
+    value = "letsencrypt"
+  }
+
+  labels {
+    label = "traefik.http.routers.dashboard.entrypoints"
+    value = "websecure"
+  }
+
+  labels {
+    label = "traefik.http.routers.dashboard.service"
+    value = "api@internal"
+  }
+
+  labels {
+    label = "traefik.http.routers.dashboard.middlewares"
+    value = "basic-auth"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.basic-auth.basicAuth.users"
+    value = "admin:${random_password.traefik_password.bcrypt_hash}"
   }
 }

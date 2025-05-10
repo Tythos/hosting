@@ -46,9 +46,9 @@ To define a new service:
 
 - [x] HTTPS / TLS
 
-- [ ] Other middleware (redirect?)
+- [x] Other middleware (redirect? basicauth, actually)
 
-- [ ] Templated traefik configuration (static yaml?)
+- ~~[ ] Templated traefik configuration (static yaml? might not be a good idea)~~
 
 - [x] Initial nginx-based service
 
@@ -58,4 +58,8 @@ To define a new service:
 
 - [ ] We've exposed basic logging metrics in a prometheus format, but these should be aggregated and exposed for management/monitoring
 
-- [ ] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
+- [x] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
+
+- [ ] Migrate to OpenTofu?
+
+- [ ] Demonstrate/pathfind a database integration of some kind?

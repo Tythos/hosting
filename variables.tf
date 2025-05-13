@@ -27,3 +27,8 @@ variable "SMOGWARTS_MOUNT" {
   type        = string
   description = "Static content path for Smogwarts service"
 }
+
+variable "RESUME_MOUNT" {
+  type        = string
+  description = "Static content path for resume service"
+}

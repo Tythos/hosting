@@ -8,10 +8,13 @@ resource "docker_container" "traefik_container" {
     "--entrypoints.web.address=:80",
     "--entrypoints.websecure.address=:443",
     "--accesslog=true",
+    "--metrics.otlp=true",
+    "--experimental.otlpLogs=true",
     "--log.level=INFO",
-    "--metrics.prometheus=true",
-    "--metrics.prometheus.addentrypointslabels=true",
-    "--metrics.prometheus.addserviceslabels=true",
+    "--log.otlp=true",
+    "--log.otlp.http=true",
+    "--log.otlp.http.endpoint=http://${docker_container.otel_container.name}:4318/v1/logs",
+    "--tracing=true",
     "--certificatesresolvers.letsencrypt.acme.email=${var.ACME_EMAIL}",
     "--certificatesresolvers.letsencrypt.acme.storage=/etc/letsencrypt/acme.json",
     "--certificatesresolvers.letsencrypt.acme.caserver=${var.LETSENCRYPT_ORIGIN}",
@@ -49,6 +52,8 @@ resource "docker_container" "traefik_container" {
     container_path = "/etc/letsencrypt"
   }
 
+  # labels for the dashboard itself are assigned via router w/ middleware
+
   labels {
     label = "traefik.http.routers.dashboard.rule"
     value = "Host(`dashboard.${var.HOST_NAME}`)"
@@ -82,5 +87,10 @@ resource "docker_container" "traefik_container" {
   labels {
     label = "traefik.http.middlewares.basic-auth.basicAuth.users"
     value = "admin:${random_password.traefik_password.bcrypt_hash}"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.redirect-main.redirectregex.regex"
+    value = "^https?://(www\\.)?${var.HOST_NAME}/?(.*)"
   }
 }

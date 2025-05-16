@@ -32,3 +32,8 @@ variable "RESUME_MOUNT" {
   type        = string
   description = "Static content path for resume service"
 }
+
+variable "MONITORING_MOUNT" {
+  type        = string
+  description = "Path where metrics, logs, and events from Loki will be cached/stored"
+}

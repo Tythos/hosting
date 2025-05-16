@@ -1,4 +1,4 @@
-output "TRAEFIK_PASSWORD" {
-  value     = random_password.traefik_password.result
+output "ADMIN_PASSWORD" {
+  value     = random_password.admin_password.result
   sensitive = true
 }

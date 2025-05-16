@@ -7,21 +7,16 @@ resource "docker_container" "traefik_container" {
     "--providers.docker",
     "--entrypoints.web.address=:80",
     "--entrypoints.websecure.address=:443",
-    "--accesslog=true",
-    "--metrics.otlp=true",
-    "--experimental.otlpLogs=true",
     "--log.level=INFO",
-    "--log.otlp=true",
-    "--log.otlp.http=true",
-    "--log.otlp.http.endpoint=http://${docker_container.otel_container.name}:4318/v1/logs",
-    "--tracing=true",
     "--certificatesresolvers.letsencrypt.acme.email=${var.ACME_EMAIL}",
     "--certificatesresolvers.letsencrypt.acme.storage=/etc/letsencrypt/acme.json",
     "--certificatesresolvers.letsencrypt.acme.caserver=${var.LETSENCRYPT_ORIGIN}",
     "--certificatesresolvers.letsencrypt.acme.dnschallenge=true",
-    "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
+    "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare",
+    "--metrics.prometheus.addEntryPointsLabels=true",
+    "--metrics.prometheus.addServicesLabels=true"
   ]
-
+  
   env = [
     "CF_API_EMAIL=${var.ACME_EMAIL}",
     "CF_API_KEY=${var.CF_API_KEY}",
@@ -86,7 +81,7 @@ resource "docker_container" "traefik_container" {
 
   labels {
     label = "traefik.http.middlewares.basic-auth.basicAuth.users"
-    value = "admin:${random_password.traefik_password.bcrypt_hash}"
+    value = "admin:${random_password.admin_password.bcrypt_hash}"
   }
 
   labels {

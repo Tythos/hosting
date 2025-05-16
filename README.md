@@ -92,6 +92,14 @@ To define a new service:
 
 - [ ] We've exposed basic logging metrics in a prometheus format, but these should be aggregated and exposed for management/monitoring
 
+      - [x] Prometheus for metrics collection
+
+      - [x] Loki for aggregation and storage
+
+      - [x] Promtail for log collection
+
+      - [ ] Grafana for dashboarding
+
 - [x] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
 
 - [ ] Migrate to OpenTofu?

@@ -1,4 +1,4 @@
-resource "random_password" "traefik_password" {
+resource "random_password" "admin_password" {
   length  = 16
   upper   = true
   lower   = true

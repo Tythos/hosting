@@ -58,7 +58,7 @@ To define a new service:
 
   - [x] Smogwarts
    
-  - [ ] Resume
+  - [x] Resume
 
   - [ ] Non-hosted
 

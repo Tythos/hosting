@@ -22,5 +22,12 @@ resource "docker_container" "promtail_container" {
   volumes {
     host_path      = abspath("./promtail-config.yml")
     container_path = "/etc/promtail/config.yml"
+    read_only      = true
+  }
+
+  volumes {
+    host_path      = "/var/run/docker.sock"
+    container_path = "/var/run/docker.sock"
+    read_only      = true
   }
 }

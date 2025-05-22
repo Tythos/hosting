@@ -13,7 +13,9 @@ resource "docker_container" "traefik_container" {
     "--certificatesresolvers.letsencrypt.acme.caserver=${var.LETSENCRYPT_ORIGIN}",
     "--certificatesresolvers.letsencrypt.acme.dnschallenge=true",
     "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare",
+    "--metrics.prometheus=true",
     "--metrics.prometheus.addEntryPointsLabels=true",
+    "--metrics.prometheus.addRoutersLabels=true",
     "--metrics.prometheus.addServicesLabels=true"
   ]
   

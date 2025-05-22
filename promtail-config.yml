@@ -21,7 +21,7 @@ scrape_configs:
         target_label: 'image_name'
     pipeline_stages:
       - docker: {}
-  - job_name: host_system_logs
+  - job_name: system
     static_configs:
       - targets:
           - localhost

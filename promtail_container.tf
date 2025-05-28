@@ -30,4 +30,9 @@ resource "docker_container" "promtail_container" {
     container_path = "/var/run/docker.sock"
     read_only      = true
   }
+  
+  labels {
+    label = "traefik.enable"
+    value = "false"
+  }
 }

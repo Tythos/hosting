@@ -98,7 +98,7 @@ To define a new service:
 
       - [x] Promtail for log collection
 
-      - [ ] Grafana for dashboarding
+      - [x] Grafana for dashboarding
 
 - [x] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
 
@@ -107,3 +107,11 @@ To define a new service:
 - [ ] Demonstrate/pathfind a database integration of some kind?
 
 - [ ] Redirect from tythos.net? (or replace TLD)
+
+## Status/Health cURL Queries
+
+```sh
+curl http://prometheus_container:9090/api/v1/query --data-urlencode 'query=up{job="prometheus"}'
+curl http://loki_container:3100/loki/api/v1/query_range --data-urlencode 'query={job="containers"}' --data-urlencode 'since=5m'
+curl http://promtail_container:9080/ready
+```

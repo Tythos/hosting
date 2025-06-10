@@ -16,9 +16,10 @@ resource "docker_container" "traefik_container" {
     "--metrics.prometheus=true",
     "--metrics.prometheus.addEntryPointsLabels=true",
     "--metrics.prometheus.addRoutersLabels=true",
-    "--metrics.prometheus.addServicesLabels=true"
+    "--metrics.prometheus.addServicesLabels=true",
+    "--metrics.addinternals"
   ]
-  
+
   env = [
     "CF_API_EMAIL=${var.ACME_EMAIL}",
     "CF_API_KEY=${var.CF_API_KEY}",

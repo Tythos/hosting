@@ -17,6 +17,9 @@ resource "docker_container" "traefik_container" {
     "--metrics.prometheus.addEntryPointsLabels=true",
     "--metrics.prometheus.addRoutersLabels=true",
     "--metrics.prometheus.addServicesLabels=true",
+    # "--metrics.prometheus.scrape=true",
+    # "--metrics.prometheus.port=8080",
+    # "--metrics.prometheus.job=traefik",
     "--metrics.addinternals"
   ]
 
@@ -90,5 +93,20 @@ resource "docker_container" "traefik_container" {
   labels {
     label = "traefik.http.middlewares.redirect-main.redirectregex.regex"
     value = "^https?://(www\\.)?${var.HOST_NAME}/?(.*)"
+  }
+
+  labels {
+    label = "prometheus.scrape"
+    value = "true"
+  }
+
+  labels {
+    label = "prometheus.port"
+    value = "8080"
+  }
+
+  labels {
+    label = "prometheus.job"
+    value = "traefik"
   }
 }

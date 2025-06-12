@@ -1,5 +1,7 @@
 .terraform/
 .vscode/
+loki-data/
+promtail-positions/
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup

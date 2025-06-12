@@ -92,13 +92,13 @@ To define a new service:
 
 - [ ] We've exposed basic logging metrics in a prometheus format, but these should be aggregated and exposed for management/monitoring
 
-      - [x] Prometheus for metrics collection
+      - [x] METRICS: Prometheus for metrics collection
 
-      - [x] Loki for aggregation and storage
+      - [x] LOGS: Promtail for log collection, Loki for aggregation and storage
 
-      - [x] Promtail for log collection
+      - [ ] EVENTS: ??
 
-      - [x] Grafana for dashboarding
+      - [x] PRESENTATION: Grafana for dashboarding
 
 - [x] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
 

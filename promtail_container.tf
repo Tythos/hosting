@@ -10,7 +10,7 @@ resource "docker_container" "promtail_container" {
   volumes {
     host_path      = "/var/log"
     container_path = "/var/log"
-    read_only      = true
+    # read_only      = true
   }
 
   volumes {

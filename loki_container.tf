@@ -11,10 +11,21 @@ resource "docker_container" "loki_container" {
   volumes {
     host_path      = abspath("./loki-config.yml")
     container_path = "/etc/loki/local-config.yaml"
+    read_only      = true
   }
 
   volumes {
     host_path      = "${var.MONITORING_MOUNT}/loki"
     container_path = "/tmp/loki"
+  }
+
+  volumes {
+    host_path      = "${var.MONITORING_MOUNT}/loki-data"
+    container_path = "/loki/data"
+  }
+
+  labels {
+    label = "traefik.enable"
+    value = "false"
   }
 }

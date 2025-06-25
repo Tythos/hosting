@@ -22,3 +22,13 @@ scrape_configs:
           output: log
     # - logfmt:
     #     source: output
+- job_name: docker-service-discovery
+  docker_sd_configs:
+    - host: unix:///var/run/docker.sock
+      refresh_interrval: 5s
+  relabel_configs:
+    - source_labels: ['__meta_docker_container_label_loki_job_name']
+      action: keep
+      regex: .+
+    - source_labels: ['__meta_docker_container_label_loki_job_name']
+      target_label: 'job'

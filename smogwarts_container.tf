@@ -6,6 +6,10 @@ resource "docker_container" "smogwarts_container" {
     name = docker_network.hosting_network.name
   }
 
+  ports {
+    internal = 9118
+  }
+
   labels {
     label = "traefik.http.routers.smogwarts.rule"
     value = "Host(`smogwarts.${var.HOST_NAME}`)"
@@ -29,5 +33,11 @@ resource "docker_container" "smogwarts_container" {
   volumes {
     host_path      = var.SMOGWARTS_MOUNT
     container_path = "/usr/share/nginx/html"
+  }
+
+  volumes {
+    host_path      = abspath("${path.root}/smogwarts-nginx-metrics.conf")
+    container_path = "/etc/nginx/conf.d/metrics.conf"
+    read_only      = true
   }
 }

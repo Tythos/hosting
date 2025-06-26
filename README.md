@@ -40,6 +40,20 @@ To define a new service:
 
 1. Add labels to the `docker_container` indicating how it should be identified/routed; for secured endpoints, the router labels should define relevant TLS options
 
+## Observability
+
+- [ ] *Metrics*: Prometheus for metrics collection from metaservices, host node, and containerized services/applications
+
+- [ ] *Logs*: Promtail for log collection, Loki for aggregation and storage
+
+- [ ] *Events*: ??
+
+- [ ] *Tracing*: ??
+
+- [ ] *Alerting*: ??
+
+- [ ] *Presentation*: Grafana for dashboarding
+
 ## TODO
 
 - [x] Routing (and load balancing)

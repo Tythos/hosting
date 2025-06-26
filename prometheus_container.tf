@@ -6,6 +6,10 @@ resource "docker_container" "prometheus_container" {
     name = docker_network.hosting_network.name
   }
 
+  group_add = [
+    "992"
+  ]
+
   command = [
     "--config.file=/etc/prometheus/prometheus.yml",
     "--storage.tsdb.path=/prometheus",
@@ -16,5 +20,11 @@ resource "docker_container" "prometheus_container" {
   volumes {
     host_path      = abspath("./prometheus-config.yml")
     container_path = "/etc/prometheus/prometheus.yml"
+  }
+
+  volumes {
+    host_path      = "/var/run/docker.sock"
+    container_path = "/var/run/docker.sock"
+    read_only      = true
   }
 }

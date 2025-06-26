@@ -31,6 +31,11 @@ resource "docker_container" "promtail_container" {
     read_only      = true
   }
   
+    volumes {
+    host_path      = "${var.MONITORING_MOUNT}/promtail/positions"
+    container_path = "/promtail"
+  }
+
   labels {
     label = "traefik.enable"
     value = "false"

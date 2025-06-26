@@ -42,7 +42,7 @@ To define a new service:
 
 ## Observability
 
-- [ ] *Metrics*: Prometheus for metrics collection from metaservices, host node, and containerized services/applications
+- [x] *Metrics*: Prometheus for metrics collection from metaservices, host node, and containerized services/applications
 
 - [ ] *Logs*: Promtail for log collection, Loki for aggregation and storage
 

@@ -26,9 +26,4 @@ resource "docker_container" "grafana_container" {
     label = "traefik.http.routers.grafana.entrypoints"
     value = "websecure"
   }
-
-  # volumes {
-  #   host_path      = "${var.MONITORING_MOUNT}/grafana"
-  #   container_path = "/var/lib/grafana"
-  # }
 }

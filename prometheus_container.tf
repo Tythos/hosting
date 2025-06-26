@@ -27,4 +27,9 @@ resource "docker_container" "prometheus_container" {
     container_path = "/var/run/docker.sock"
     read_only      = true
   }
+
+  volumes {
+    host_path      = "${var.MONITORING_MOUNT}/prometheus/data"
+    container_path = "/prometheus"
+  }
 }

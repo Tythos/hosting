@@ -52,6 +52,8 @@ To define a new service:
 
 - [ ] *Alerting*: ??
 
+- [ ] *Processing/Caching*: Prometheus
+
 - [ ] *Presentation*: Grafana for dashboarding
 
 ## TODO

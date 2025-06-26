@@ -46,7 +46,7 @@ To define a new service:
 
 - [x] *Logs*: Promtail for log collection, Loki for aggregation and storage
 
-- [ ] *Events*: ??
+- [x] *Events*: Custom Docker events monitoring container forwarded via Loki
 
 - [ ] *Tracing*: ??
 

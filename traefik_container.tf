@@ -20,7 +20,9 @@ resource "docker_container" "traefik_container" {
     # "--metrics.prometheus.scrape=true",
     # "--metrics.prometheus.port=8080",
     # "--metrics.prometheus.job=traefik",
-    "--metrics.addinternals"
+    "--metrics.addinternals",
+    "--tracing.otlp=true",
+    "--tracing.otlp.address=tempo_container:4317"
   ]
 
   env = [

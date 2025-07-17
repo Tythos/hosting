@@ -48,7 +48,7 @@ To define a new service:
 
 - [x] *Events*: Custom Docker events monitoring container forwarded via Loki
 
-- [ ] *Tracing*: ??
+- [x] *Tracing*: Tempo for distributed tracing with OpenTelemetry support
 
 - [ ] *Alerting*: ??
 
@@ -130,4 +130,43 @@ To define a new service:
 curl http://prometheus_container:9090/api/v1/query --data-urlencode 'query=up{job="prometheus"}'
 curl http://loki_container:3100/loki/api/v1/query_range --data-urlencode 'query={job="containers"}' --data-urlencode 'since=5m'
 curl http://promtail_container:9080/ready
+curl http://tempo_container:3200/ready
 ```
+
+## Tracing Setup
+
+The observability stack now includes comprehensive distributed tracing using Tempo:
+
+### Components
+- **Tempo**: Distributed tracing backend with OpenTelemetry support
+- **Trace Test App**: Sample application that generates traces for testing
+- **Grafana Integration**: Pre-configured datasources and dashboards
+
+### Quick Start
+1. Deploy the infrastructure:
+   ```sh
+   ./scripts/deploy_tracing.sh
+   ```
+
+2. Generate test traces:
+   ```sh
+   curl https://trace-test.your-domain.com/
+   curl https://trace-test.your-domain.com/slow
+   curl https://trace-test.your-domain.com/error
+   ```
+
+3. View traces in Grafana:
+   - Navigate to Explore → Tempo
+   - Search by service name or trace ID
+   - Import the tracing dashboard from `dashboards/tracing_dashboard.json`
+
+### Verification
+Run the comprehensive verification script:
+```sh
+docker run --rm --network=hosting_network -v "$(pwd)":/app -w /app python:3.9-slim sh -c "pip install -q requests && python tests/verify_tracing.py"
+```
+
+### Integration
+- Traefik is configured to send traces to Tempo
+- All services can be instrumented with OpenTelemetry
+- Traces are automatically correlated with logs and metrics

@@ -1,6 +1,6 @@
 server:
   http_listen_port: 3200
-  # log_level: debug
+  log_level: info
 
 distributor:
   receivers:
@@ -10,6 +10,12 @@ distributor:
           endpoint: "0.0.0.0:4317"
         http:
           endpoint: "0.0.0.0:4318"
+    jaeger:
+      protocols:
+        thrift_http:
+          endpoint: "0.0.0.0:14268"
+        grpc:
+          endpoint: "0.0.0.0:14250"
 
 ingester:
   trace_idle_period: 10s
@@ -18,10 +24,29 @@ ingester:
 
 compactor:
   compaction:
-    block_retention: 1h
+    block_retention: 24h
+    compacted_block_retention: 1h
 
 storage:
   trace:
     backend: local
     local:
       path: /etc/tempo/data
+    wal:
+      path: /etc/tempo/wal
+
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: hosting
+  storage:
+    path: /etc/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus_container:9090/api/v1/write
+        send_exemplars: true
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics]

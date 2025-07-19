@@ -1,13 +1,13 @@
 resource "docker_container" "smogwarts_container" {
-  image = docker_image.nginx_image.image_id
+  image = docker_image.smogwarts_image.image_id
   name  = "smogwarts_container"
 
   networks_advanced {
-    name = docker_network.hosting_network.name
+    name = var.HOSTING_NETWORK_NAME
   }
 
   ports {
-    internal = 9118
+    internal = 80
   }
 
   labels {
@@ -33,11 +33,5 @@ resource "docker_container" "smogwarts_container" {
   volumes {
     host_path      = var.SMOGWARTS_MOUNT
     container_path = "/usr/share/nginx/html"
-  }
-
-  volumes {
-    host_path      = abspath("${path.root}/smogwarts-nginx-metrics.conf")
-    container_path = "/etc/nginx/conf.d/metrics.conf"
-    read_only      = true
   }
 }

@@ -21,3 +21,10 @@ module "whoami" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
 }
+
+module "smogwarts" {
+  source               = "./smogwarts"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  SMOGWARTS_MOUNT      = "${var.MOUNTED_VOLUME}/smogwarts"
+}

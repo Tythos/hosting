@@ -23,17 +23,7 @@ variable "CF_DNS_API_TOKEN" {
   description = "The DNS API token to use for Cloudflare DNS updates"
 }
 
-variable "SMOGWARTS_MOUNT" {
-  type        = string
-  description = "Static content path for Smogwarts service"
-}
-
-variable "RESUME_MOUNT" {
-  type        = string
-  description = "Static content path for resume service"
-}
-
-variable "MONITORING_MOUNT" {
+variable "MOUNTED_VOLUME" {
   type        = string
   description = "Path where metrics, logs, and events from Loki will be cached/stored"
 }

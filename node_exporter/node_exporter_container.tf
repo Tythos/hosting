@@ -10,7 +10,7 @@ resource "docker_container" "node_exporter_container" {
   restart  = "unless-stopped"
 
   networks_advanced {
-    name = docker_network.hosting_network.name
+    name = var.HOSTING_NETWORK_NAME
   }
 
   volumes {

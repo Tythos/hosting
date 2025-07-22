@@ -42,19 +42,17 @@ To define a new service:
 
 ## Observability
 
-- [x] *Metrics*: Prometheus for metrics collection from metaservices, host node, and containerized services/applications
+- [x] *Metrics*: Prometheus for metrics collection from metaservices, host node, and containerized services/applications; node-exporter for host resource metrics (through Prometheus)
 
-- [x] *Logs*: Promtail for log collection, Loki for aggregation and storage
+- [ ] *Logs*: Promtail for log collection, Loki for aggregation and storage
 
-- [x] *Events*: Custom Docker events monitoring container forwarded via Loki
+- [ ] *Events*: Custom Docker events monitoring container forwarded via Loki
 
 - [ ] *Tracing*: ??
 
 - [ ] *Alerting*: ??
 
-- [ ] *Processing/Caching*: Prometheus
-
-- [ ] *Presentation*: Grafana for dashboarding
+Grafana is the primary presentation target for dashboarding each observability signal.
 
 ## TODO
 

@@ -1,3 +1,9 @@
+module "alertmanager" {
+  source               = "./alertmanager"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  MONITORING_MOUNT     = var.MOUNTED_VOLUME
+}
+
 module "flask" {
   source               = "./flask"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
@@ -10,6 +16,20 @@ module "grafana" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
 }
+
+module "prometheus" {
+  source               = "./prometheus"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  MONITORING_MOUNT     = var.MOUNTED_VOLUME
+}
+
+module "node_exporter" {
+  source               = "./node_exporter"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+}
+
+
 
 module "smogwarts" {
   source               = "./smogwarts"

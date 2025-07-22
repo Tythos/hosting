@@ -3,6 +3,6 @@ resource "docker_image" "flask_image" {
   keep_locally = true
 
   build {
-    context = "./flask_image"
+    context = "${path.module}/flask_image"
   }
 }

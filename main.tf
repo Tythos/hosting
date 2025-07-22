@@ -1,3 +1,30 @@
+module "flask" {
+  source               = "./flask"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+}
+
+module "grafana" {
+  source               = "./grafana"
+  ADMIN_PASSWORD       = random_password.admin_password.result
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+}
+
+module "smogwarts" {
+  source               = "./smogwarts"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  SMOGWARTS_MOUNT      = "${var.MOUNTED_VOLUME}/smogwarts"
+}
+
+module "resume" {
+  source               = "./resume"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  RESUME_MOUNT         = "${var.MOUNTED_VOLUME}/resume"
+}
+
 module "traefik" {
   source               = "./traefik"
   ADMIN_PASSWORD       = random_password.admin_password.bcrypt_hash
@@ -9,22 +36,8 @@ module "traefik" {
   CF_DNS_API_TOKEN     = var.CF_DNS_API_TOKEN
 }
 
-module "grafana" {
-  source               = "./grafana"
-  ADMIN_PASSWORD       = random_password.admin_password.result
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  HOST_NAME            = var.HOST_NAME
-}
-
 module "whoami" {
   source               = "./whoami"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
-}
-
-module "smogwarts" {
-  source               = "./smogwarts"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  HOST_NAME            = var.HOST_NAME
-  SMOGWARTS_MOUNT      = "${var.MOUNTED_VOLUME}/smogwarts"
 }

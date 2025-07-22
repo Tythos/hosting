@@ -3,7 +3,7 @@ resource "docker_container" "flask_container" {
   name  = "flask_container"
 
   networks_advanced {
-    name = docker_network.hosting_network.name
+    name = var.HOSTING_NETWORK_NAME
   }
 
   labels {

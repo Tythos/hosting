@@ -1,9 +1,9 @@
 resource "docker_container" "resume_container" {
-  image = docker_image.nginx_image.image_id
+  image = docker_image.resume_image.image_id
   name  = "resume_container"
 
   networks_advanced {
-    name = docker_network.hosting_network.name
+    name = var.HOSTING_NETWORK_NAME
   }
 
   labels {

@@ -1,3 +1,3 @@
 resource "docker_image" "alertmanager_image" {
-  name = "prom/alertmanager:v0.26.0"
-} 
+  name = "prom/alertmanager:v0.28.1"
+}

@@ -1,12 +1,16 @@
 global:
   resolve_timeout: 5m
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alertmanager@tythos.io'
+  smtp_auth_username: ''
+  smtp_auth_password: ''
 
 route:
   group_by: ['alertname']
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
-  receiver: 'email-notifications'
+  receiver: 'web.hook'
 
 receivers:
   - name: 'email-notifications'

@@ -8,7 +8,7 @@ variable "HOST_NAME" {
   description = "Concatenated to subdomain to construct FQDN used in routing rules and TLS signing"
 }
 
-variable "MONITORING_MOUNT" {
+variable "STATE_PATH" {
   type        = string
   description = "Path where monitoring data will be stored"
 }

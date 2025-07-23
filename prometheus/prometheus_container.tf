@@ -2,13 +2,7 @@ resource "docker_container" "prometheus_container" {
   image = docker_image.prometheus_image.image_id
   name  = "prometheus_container"
 
-  networks_advanced {
-    name = var.HOSTING_NETWORK_NAME
-  }
-
-  group_add = [
-    "121"
-  ]
+  group_add = ["121"]
 
   command = [
     "--config.file=/etc/prometheus/prometheus.yml",
@@ -17,9 +11,18 @@ resource "docker_container" "prometheus_container" {
     "--web.console.templates=/etc/prometheus/consoles"
   ]
 
+  networks_advanced {
+    name = var.HOSTING_NETWORK_NAME
+  }
+
   volumes {
     host_path      = abspath("${path.module}/prometheus-config.yml")
     container_path = "/etc/prometheus/prometheus.yml"
+  }
+
+  volumes {
+    host_path      = var.STATE_PATH
+    container_path = "/prometheus"
   }
 
   volumes {

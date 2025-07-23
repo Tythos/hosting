@@ -3,7 +3,7 @@ variable "HOSTING_NETWORK_NAME" {
   description = "Name of internal Docker network used for routing"
 }
 
-variable "MONITORING_MOUNT" {
+variable "STATE_PATH" {
   type        = string
   description = "Path where monitoring data will be stored"
 }

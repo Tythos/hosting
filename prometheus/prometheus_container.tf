@@ -1,14 +1,8 @@
 resource "docker_container" "prometheus_container" {
   image = docker_image.prometheus_image.image_id
   name  = "prometheus_container"
-
-  group_add = ["121"]
-
   command = [
-    "--config.file=/etc/prometheus/prometheus.yml",
-    "--storage.tsdb.path=/prometheus",
-    "--web.console.libraries=/etc/prometheus/console_libraries",
-    "--web.console.templates=/etc/prometheus/consoles"
+    "--config.file=/etc/prometheus/prometheus.yml"
   ]
 
   networks_advanced {
@@ -16,25 +10,16 @@ resource "docker_container" "prometheus_container" {
   }
 
   volumes {
+    # NOTE: container restart required to reload configuration changes!
     host_path      = abspath("${path.module}/prometheus-config.yml")
     container_path = "/etc/prometheus/prometheus.yml"
   }
 
-  volumes {
-    host_path      = var.STATE_PATH
-    container_path = "/prometheus"
-  }
-
-  volumes {
-    host_path      = abspath("${path.module}/alert-rules.yml")
-    container_path = "/etc/prometheus/alert-rules.yml"
-  }
-
-  volumes {
-    host_path      = "/var/run/docker.sock"
-    container_path = "/var/run/docker.sock"
-    read_only      = true
-  }
+  # TODO: Add alert-rules.yml to the container to include in event reporting
+  #volumes {
+  #  host_path      = abspath("${path.module}/alert-rules.yml")
+  #  container_path = "/etc/prometheus/alert-rules.yml"
+  #}
 
   labels {
     label = "traefik.enable"

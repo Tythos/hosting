@@ -124,8 +124,26 @@ Grafana is the primary presentation target for dashboarding each observability s
 
 ## Status/Health cURL Queries
 
+To verify node-exporter is exposing metrics:
+
 ```sh
-curl http://prometheus_container:9090/api/v1/query --data-urlencode 'query=up{job="prometheus"}'
-curl http://loki_container:3100/loki/api/v1/query_range --data-urlencode 'query={job="containers"}' --data-urlencode 'since=5m'
-curl http://promtail_container:9080/ready
+docker exec traefik_container curl http://node_exporter_container:9100/metrics
+```
+
+To verify Prometheus is exposing reports:
+
+```sh
+docker exec traefik_container curl http://prometheus_container:9090/api/v1/query --data-urlencode 'query=up{job="prometheus"}'
+```
+
+To verify Loki is exposing logs:
+
+```sh
+docker exec traefik_container curl http://loki_container:3100/loki/api/v1/query_range --data-urlencode 'query={job="containers"}' --data-urlencode 'since=5m'
+```
+
+To verify promtail is shipping logs:
+
+```sh
+docker exec traefik_container curl http://promtail_container:9080/ready
 ```

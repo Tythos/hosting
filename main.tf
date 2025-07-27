@@ -17,11 +17,11 @@ module "grafana" {
   HOST_NAME            = var.HOST_NAME
 }
 
-module "loki" {
-  source               = "./loki"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/loki"
-}
+# module "loki" {
+#   source               = "./loki"
+#   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+#   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/loki"
+# }
 
 module "prometheus" {
   source               = "./prometheus"
@@ -35,6 +35,29 @@ module "prometheus" {
 #   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
 #   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/promtail"
 # }
+
+module "vector" {
+  source               = "./vector"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/vector"
+}
+
+module "fluentd" {
+  source               = "./fluentd"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/fluentd"
+}
+
+module "influxdb" {
+  source               = "./influxdb"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/influxdb"
+  INFLUXDB_USERNAME    = "admin"
+  INFLUXDB_PASSWORD    = random_password.influxdb_password.result
+  INFLUXDB_ORG         = "tythos"
+  INFLUXDB_BUCKET      = "docker_logs"
+  INFLUXDB_TOKEN       = random_password.influxdb_token.result
+}
 
 module "node_exporter" {
   source               = "./node_exporter"

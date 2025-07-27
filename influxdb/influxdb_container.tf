@@ -25,6 +25,11 @@ resource "docker_container" "influxdb_container" {
     "DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${var.INFLUXDB_TOKEN}"
   ]
 
+  ports {
+    internal = 8086
+    external = 8086
+  }
+
   labels {
     label = "traefik.enable"
     value = "false"

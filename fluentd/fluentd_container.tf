@@ -24,14 +24,15 @@ resource "docker_container" "fluentd_container" {
   }
 
   volumes {
-    host_path      = "/var/log"
-    container_path = "/var/log"
+    host_path      = "${var.STATE_PATH}/logs"
+    container_path = "/var/log/fluentd"
   }
 
-  volumes {
-    host_path      = "${var.STATE_PATH}/fluentd"
-    container_path = "/fluentd/log"
-  }
+  env = [
+    "INFLUXDB_TOKEN=${var.INFLUXDB_TOKEN}",
+    "INFLUXDB_ORG=${var.INFLUXDB_ORG}",
+    "INFLUXDB_BUCKET=${var.INFLUXDB_BUCKET}"
+  ]
 
   labels {
     label = "traefik.enable"

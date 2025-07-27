@@ -46,6 +46,9 @@ module "fluentd" {
   source               = "./fluentd"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/fluentd"
+  INFLUXDB_TOKEN       = random_password.influxdb_token.result
+  INFLUXDB_ORG         = "tythos"
+  INFLUXDB_BUCKET      = "docker_logs"
 }
 
 module "influxdb" {
@@ -53,7 +56,7 @@ module "influxdb" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/influxdb"
   INFLUXDB_USERNAME    = "admin"
-  INFLUXDB_PASSWORD    = random_password.influxdb_password.result
+  INFLUXDB_PASSWORD    = random_password.admin_password.result
   INFLUXDB_ORG         = "tythos"
   INFLUXDB_BUCKET      = "docker_logs"
   INFLUXDB_TOKEN       = random_password.influxdb_token.result

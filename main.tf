@@ -30,11 +30,11 @@ module "prometheus" {
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/prometheus"
 }
 
-module "promtail" {
-  source               = "./promtail"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/promtail"
-}
+# module "promtail" {
+#   source               = "./promtail"
+#   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+#   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/promtail"
+# }
 
 module "node_exporter" {
   source               = "./node_exporter"

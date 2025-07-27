@@ -135,15 +135,3 @@ To verify Prometheus is exposing reports:
 ```sh
 docker exec traefik_container curl http://prometheus_container:9090/api/v1/query --data-urlencode 'query=up{job="prometheus"}'
 ```
-
-To verify Vector is collecting logs:
-
-```sh
-docker exec traefik_container curl 
-```
-
-To verify promtail is shipping logs (NOTE: because Promtail expects to `PUSH` logs, Loki must be up and running first):
-
-```sh
-docker exec traefik_container curl http://promtail_container:9080/ready
-```

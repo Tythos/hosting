@@ -1,9 +1,3 @@
-module "alertmanager" {
-  source               = "./alertmanager"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/alertmanager"
-}
-
 module "flask" {
   source               = "./flask"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
@@ -17,11 +11,10 @@ module "grafana" {
   HOST_NAME            = var.HOST_NAME
 }
 
-# module "loki" {
-#   source               = "./loki"
-#   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-#   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/loki"
-# }
+module "node_exporter" {
+  source               = "./node_exporter"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+}
 
 module "prometheus" {
   source               = "./prometheus"
@@ -30,41 +23,11 @@ module "prometheus" {
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/prometheus"
 }
 
-# module "promtail" {
-#   source               = "./promtail"
-#   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-#   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/promtail"
-# }
-
-module "vector" {
-  source               = "./vector"
+module "resume" {
+  source               = "./resume"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/vector"
-}
-
-module "fluentd" {
-  source               = "./fluentd"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/fluentd"
-  INFLUXDB_TOKEN       = random_password.influxdb_token.result
-  INFLUXDB_ORG         = "tythos"
-  INFLUXDB_BUCKET      = "docker_logs"
-}
-
-module "influxdb" {
-  source               = "./influxdb"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/influxdb"
-  INFLUXDB_USERNAME    = "admin"
-  INFLUXDB_PASSWORD    = random_password.admin_password.result
-  INFLUXDB_ORG         = "tythos"
-  INFLUXDB_BUCKET      = "docker_logs"
-  INFLUXDB_TOKEN       = random_password.influxdb_token.result
-}
-
-module "node_exporter" {
-  source               = "./node_exporter"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  RESUME_MOUNT         = "${var.MOUNTED_VOLUME}/resume"
 }
 
 module "smogwarts" {
@@ -72,13 +35,6 @@ module "smogwarts" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   SMOGWARTS_MOUNT      = "${var.MOUNTED_VOLUME}/smogwarts"
-}
-
-module "resume" {
-  source               = "./resume"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  HOST_NAME            = var.HOST_NAME
-  RESUME_MOUNT         = "${var.MOUNTED_VOLUME}/resume"
 }
 
 module "traefik" {

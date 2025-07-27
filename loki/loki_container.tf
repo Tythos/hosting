@@ -5,23 +5,23 @@ resource "docker_container" "loki_container" {
   command = ["-config.file=/etc/loki/local-config.yaml"]
 
   networks_advanced {
-    name = docker_network.hosting_network.name
+    name = var.HOSTING_NETWORK_NAME
   }
 
   volumes {
-    host_path      = abspath("./loki-config.yml")
+    host_path      = abspath("${path.module}/loki-config.yml")
     container_path = "/etc/loki/local-config.yaml"
     read_only      = true
   }
 
   volumes {
-    host_path      = "${var.MONITORING_MOUNT}/loki"
-    container_path = "/tmp/loki"
+    host_path      = "${var.STATE_PATH}/loki-data"
+    container_path = "/loki/data"
   }
 
   volumes {
-    host_path      = "${var.MONITORING_MOUNT}/loki-data"
-    container_path = "/loki/data"
+    host_path      = "${var.STATE_PATH}/tmp-loki"
+    container_path = "/tmp/loki"
   }
 
   labels {

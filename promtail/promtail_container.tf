@@ -4,13 +4,13 @@ resource "docker_container" "promtail_container" {
   command = ["-config.file=/etc/promtail/config.yml"]
 
   networks_advanced {
-    name = docker_network.hosting_network.name
+    name = var.HOSTING_NETWORK_NAME
   }
 
   volumes {
     host_path      = "/var/log"
     container_path = "/var/log"
-    # read_only      = true
+    read_only      = true
   }
 
   volumes {
@@ -30,9 +30,9 @@ resource "docker_container" "promtail_container" {
     container_path = "/var/run/docker.sock"
     read_only      = true
   }
-  
-    volumes {
-    host_path      = "${var.MONITORING_MOUNT}/promtail/positions"
+
+  volumes {
+    host_path      = var.STATE_PATH
     container_path = "/promtail"
   }
 

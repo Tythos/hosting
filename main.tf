@@ -17,11 +17,23 @@ module "grafana" {
   HOST_NAME            = var.HOST_NAME
 }
 
+module "loki" {
+  source               = "./loki"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/loki"
+}
+
 module "prometheus" {
   source               = "./prometheus"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/prometheus"
+}
+
+module "promtail" {
+  source               = "./promtail"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/promtail"
 }
 
 module "node_exporter" {

@@ -142,7 +142,7 @@ To verify Loki is exposing logs:
 docker exec traefik_container curl http://loki_container:3100/loki/api/v1/query_range --data-urlencode 'query={job="containers"}' --data-urlencode 'since=5m'
 ```
 
-To verify promtail is shipping logs:
+To verify promtail is shipping logs (NOTE: because Promtail expects to `PUSH` logs, Loki must be up and running first):
 
 ```sh
 docker exec traefik_container curl http://promtail_container:9080/ready

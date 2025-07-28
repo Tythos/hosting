@@ -11,6 +11,12 @@ module "grafana" {
   HOST_NAME            = var.HOST_NAME
 }
 
+module "loki" {
+  source               = "./loki"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/loki"
+}
+
 module "node_exporter" {
   source               = "./node_exporter"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

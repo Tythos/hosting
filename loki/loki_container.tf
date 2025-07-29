@@ -16,4 +16,9 @@ resource "docker_container" "loki_container" {
     label = "traefik.enable"
     value = "false"
   }
+
+  ports {
+    internal = 3100
+    external = 3100
+  }
 }

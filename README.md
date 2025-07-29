@@ -135,3 +135,9 @@ To verify Prometheus is exposing reports:
 ```sh
 docker exec traefik_container curl http://prometheus_container:9090/api/v1/query --data-urlencode 'query=up{job="prometheus"}'
 ```
+
+To inject a log message into Loki manually:
+
+```sh
+docker exec traefik_container curl -X POST -d '{"streams":[{"stream":{"container":"test"},"values":[["'$(date +%s%N)'","test log message"]]}]}' -H "Content-Type: application/json" http://loki_container:3100/loki/api/v1/push
+```

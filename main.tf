@@ -2,6 +2,9 @@ module "flask" {
   source               = "./flask"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
+  LOG_DRIVER           = "loki"
+  LOKI_URL             = module.loki.LOKI_URL
+  LOKI_PLUGIN          = module.loki.LOKI_PLUGIN
 }
 
 module "grafana" {
@@ -27,12 +30,6 @@ module "prometheus" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/prometheus"
-}
-
-module "promtail" {
-  source               = "./promtail"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/promtail"
 }
 
 module "resume" {

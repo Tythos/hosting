@@ -20,5 +20,6 @@ resource "docker_container" "loki_container" {
   ports {
     internal = 3100
     external = 3100
+    ip       = "127.0.0.1"
   }
 }

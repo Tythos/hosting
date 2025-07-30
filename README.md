@@ -38,19 +38,15 @@ To define a new service:
 
 1. Add a new `docker_container` resource, mounting against any particular persistent storage requirements
 
-1. Add labels to the `docker_container` indicating how it should be identified/routed; for secured endpoints, the router labels should define relevant TLS options
+1. Add labels to the `docker_container` indicating how it should be identified/routed; for secured endpoints, the router labels should define relevant TLS options, and logging options should be included if service reports will be aggregated
 
 ## Observability
 
 - [x] *Metrics*: Prometheus for metrics collection from metaservices, host node, and containerized services/applications; node-exporter for host resource metrics (through Prometheus)
 
-- [ ] *Logs*: Promtail for log collection, Loki for aggregation and storage
-
-- [ ] *Events*: Custom Docker events monitoring container forwarded via Loki
+- [x] *Logs*: Loki for aggregation/storage/exposure (via Loki Docker plugin driver)
 
 - [ ] *Tracing*: ??
-
-- [ ] *Alerting*: ??
 
 Grafana is the primary presentation target for dashboarding each observability signal.
 
@@ -103,16 +99,6 @@ Grafana is the primary presentation target for dashboarding each observability s
   - [ ] Any other interesting top-level file contents
 
 - [ ] Honestly it wouldn't be a bad idea to demo and/or port a PHP app from the above list  
-
-- [ ] We've exposed basic logging metrics in a prometheus format, but these should be aggregated and exposed for management/monitoring
-
-      - [x] METRICS: Prometheus for metrics collection
-
-      - [x] LOGS: Promtail for log collection, Loki for aggregation and storage
-
-      - [ ] EVENTS: ??
-
-      - [x] PRESENTATION: Grafana for dashboarding
 
 - [x] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
 

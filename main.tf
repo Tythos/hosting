@@ -46,6 +46,13 @@ module "smogwarts" {
   LOKI_URL             = module.loki.LOKI_URL
 }
 
+module "tempo" {
+  source               = "./tempo"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/tempo"
+  LOKI_URL             = module.loki.LOKI_URL
+}
+
 module "traefik" {
   source               = "./traefik"
   ADMIN_PASSWORD       = random_password.admin_password.bcrypt_hash

@@ -12,3 +12,8 @@ variable "SMOGWARTS_MOUNT" {
   type        = string
   description = "Path to static Smogwarts content"
 }
+
+variable "LOKI_URL" {
+  type        = string
+  description = "POST address of logging endpoint"
+}

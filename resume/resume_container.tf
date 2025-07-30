@@ -1,6 +1,8 @@
 resource "docker_container" "resume_container" {
-  image = docker_image.resume_image.image_id
-  name  = "resume_container"
+  image      = docker_image.resume_image.image_id
+  name       = "resume_container"
+  log_driver = "loki"
+  log_opts   = { "loki-url" = var.LOKI_URL }
 
   networks_advanced {
     name = var.HOSTING_NETWORK_NAME

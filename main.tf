@@ -2,9 +2,7 @@ module "flask" {
   source               = "./flask"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
-  LOG_DRIVER           = "loki"
   LOKI_URL             = module.loki.LOKI_URL
-  LOKI_PLUGIN          = module.loki.LOKI_PLUGIN
 }
 
 module "grafana" {
@@ -37,6 +35,7 @@ module "resume" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   RESUME_MOUNT         = "${var.MOUNTED_VOLUME}/resume"
+  LOKI_URL             = module.loki.LOKI_URL
 }
 
 module "smogwarts" {
@@ -44,6 +43,7 @@ module "smogwarts" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   SMOGWARTS_MOUNT      = "${var.MOUNTED_VOLUME}/smogwarts"
+  LOKI_URL             = module.loki.LOKI_URL
 }
 
 module "traefik" {
@@ -61,4 +61,5 @@ module "whoami" {
   source               = "./whoami"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
+  LOKI_URL             = module.loki.LOKI_URL
 }

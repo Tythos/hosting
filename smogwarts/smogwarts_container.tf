@@ -1,6 +1,8 @@
 resource "docker_container" "smogwarts_container" {
-  image = docker_image.smogwarts_image.image_id
-  name  = "smogwarts_container"
+  image      = docker_image.smogwarts_image.image_id
+  name       = "smogwarts_container"
+  log_driver = "loki"
+  log_opts   = { "loki-url" = var.LOKI_URL }
 
   networks_advanced {
     name = var.HOSTING_NETWORK_NAME

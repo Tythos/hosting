@@ -127,3 +127,10 @@ To inject a log message into Loki manually:
 ```sh
 docker exec traefik_container curl -X POST -d '{"streams":[{"stream":{"container":"test"},"values":[["'$(date +%s%N)'","test log message"]]}]}' -H "Content-Type: application/json" http://loki_container:3100/loki/api/v1/push
 ```
+
+Assuming Tempo is up and an appropriate app is running (we use "flask-app" here), tracing can be verified via:
+
+```sh
+docker exec traefik_container curl http://tempo_container:3200/ready
+docker exec traefik_container curl "http://tempo_container:3200/api/search?tags=service.name%3Dflask-app&limit=10"
+```

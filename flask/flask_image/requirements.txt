@@ -1,6 +1,3 @@
-flask==2.3.3
-requests==2.31.0
-gevent
-opentelemetry-distro 
+flask
+opentelemetry-distro
 opentelemetry-exporter-otlp
-opentelemetry-instrumentation-flask

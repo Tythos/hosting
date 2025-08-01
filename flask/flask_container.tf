@@ -3,10 +3,21 @@ resource "docker_container" "flask_container" {
   name       = "flask_container"
   log_driver = "loki"
   log_opts   = { "loki-url" = var.LOKI_URL }
+  
   env = [
     "OTEL_SERVICE_NAME=flask-app",
-    "OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo_container:4317",
-    "OTEL_PYTHON_LOG_CORRELATION=true"
+    "OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo_container:4318",
+    "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",
+    "OTEL_PYTHON_LOG_CORRELATION=true",
+    "OTEL_TRACES_SAMPLER=always_on",
+    "OTEL_TRACES_SAMPLER_ARG=1.0"
+  ]
+
+  entrypoint = [
+    "opentelemetry-instrument",
+    "--traces_exporter", "otlp",
+    "--service_name", "flask-app",
+    "python", "server.py"
   ]
 
   networks_advanced {
@@ -32,11 +43,4 @@ resource "docker_container" "flask_container" {
     label = "traefik.http.routers.flask.entrypoints"
     value = "websecure"
   }
-
-  entrypoint = [
-    "opentelemetry-instrument",
-    "--traces_exporter", "otlp",
-    "--service_name", "flask-app",
-    "python", "server.py"
-  ]
 }

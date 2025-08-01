@@ -6,23 +6,29 @@ import time
 import flask
 import random
 from gevent import pywsgi
-#from opentelemetry import (trace, sdk)
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.resources import Resource
+
+# Set up the tracer provider
+resource = Resource.create({"service.name": "flask-app"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+
+# Set up the OTLP exporter
+otlp_exporter = OTLPSpanExporter(endpoint="http://tempo_container:4318/v1/traces")
+span_processor = BatchSpanProcessor(otlp_exporter)
+trace.get_tracer_provider().add_span_processor(span_processor)
 
 APP = flask.Flask(__name__)
-#trace.set_tracer_provider(sdk.trace.TracerProvider(resource=sdk.resources.Resource(
-#    "service.name": "flask-test-app",
-#    "service.version": "1.0.0",
-#    "deployment.environment": "test"
-#)))
-#tracer = trace.get_tracer(__name__)
+FlaskInstrumentor().instrument_app(APP)
 
 @APP.route("/")
 def index():
     """
     """
-#    with tracer.start_as_current_span("index") as span:
-#        span.set_attribute("endpoint", "home")
-#        span.set_attribute("method", flask.request.method)
     time.sleep(1)
     return "Hello, World!", 200, {"Content-Type": "text/plain"}
 
@@ -53,5 +59,10 @@ def error():
         raise Exception("Random error")
     return "No error", 200, {"Content-Type": "text/plain"}
 
+def main():
+    """
+    """
+    APP.run(host="0.0.0.0", port=80, debug=True)
+
 if __name__ == "__main__":
-    pywsgi.WSGIServer(("0.0.0.0", 80), APP).serve_forever()
+    main()

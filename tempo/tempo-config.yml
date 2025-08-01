@@ -37,14 +37,6 @@ query_frontend:
 querier:
   max_concurrent_queries: 5
 
-search_enabled: true
-search:
-  external_endpoints: []
-  default_result_limit: 20
-api:
-  search:
-    enabled: true
-
 # metrics_generator_enabled: false
 
 # overrides:

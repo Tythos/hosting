@@ -1,3 +1,10 @@
+module "easton" {
+  source               = "./easton"
+  HOST_NAME            = var.HOST_NAME
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/easton"
+}
+
 module "flask" {
   source               = "./flask"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
@@ -23,6 +30,13 @@ module "loki" {
   source               = "./loki"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/loki"
+}
+
+module "macercy" {
+  source               = "./macercy"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/macercy"
 }
 
 module "node_exporter" {

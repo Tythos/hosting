@@ -3,7 +3,7 @@ resource "docker_container" "flask_container" {
   name       = "flask_container"
   log_driver = "loki"
   log_opts   = { "loki-url" = var.LOKI_URL }
-  
+
   env = [
     "OTEL_SERVICE_NAME=flask-app",
     "OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo_container:4318",
@@ -29,7 +29,7 @@ resource "docker_container" "flask_container" {
   ports {
     internal = 80
   }
-  
+
   labels {
     label = "traefik.http.routers.flask.rule"
     value = "Host(`flask.${var.HOST_NAME}`)"

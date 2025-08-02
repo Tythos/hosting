@@ -74,7 +74,7 @@ Grafana is the primary presentation target for dashboarding each observability s
 
   - [ ] Non-hosted (??)
 
-  - [ ] Macercy
+  - [x] Macercy
 
   - [ ] Aero?
 

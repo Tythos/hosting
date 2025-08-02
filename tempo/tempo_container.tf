@@ -8,10 +8,6 @@ resource "docker_container" "tempo_container" {
   }
 
   ports {
-    internal = 4317
-  }
-
-  ports {
     internal = 4318
   }
 

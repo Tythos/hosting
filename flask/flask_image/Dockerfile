@@ -4,4 +4,5 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN opentelemetry-bootstrap -a install
 COPY . .
-ENTRYPOINT ["/app/entrypoint.sh"]
+EXPOSE 80
+CMD ["flask", "run", "--port=80"]

@@ -46,7 +46,7 @@ To define a new service:
 
 - [x] *Logs*: Loki for aggregation/storage/exposure (via Loki Docker plugin driver)
 
-- [ ] *Tracing*: ??
+- [x] *Tracing*: Tempo with OTEL instrumentation (particularly useful with the `opentelemetry-instrument` middleware/launcher/wrapper for Flask)
 
 Grafana is the primary presentation target for dashboarding each observability signal.
 

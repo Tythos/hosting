@@ -7,6 +7,14 @@ resource "docker_container" "tempo_container" {
     name = var.HOSTING_NETWORK_NAME
   }
 
+  ports {
+    internal = 4317
+  }
+
+  ports {
+    internal = 4318
+  }
+
   volumes {
     host_path      = abspath("${path.module}/tempo-config.yml")
     container_path = "/etc/tempo/tempo-config.yml"

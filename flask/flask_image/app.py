@@ -1,22 +1,28 @@
+"""
+"""
+
 from random import randint
 from flask import Flask, request
 import logging
 
-app = Flask(__name__)
+APP = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
+@APP.route("/")
+def index():
+    """
+    """
+    return "OK", 200, {"Content-Type": "text/plain"}
 
-@app.route("/rolldice")
+@APP.route("/rolldice")
 def roll_dice():
+    """
+    """
     player = request.args.get('player', default=None, type=str)
-    result = str(roll())
+    result = str(randint(1, 6))
     if player:
-        logger.warning("%s is rolling the dice: %s", player, result)
+        LOGGER.warning("%s is rolling the dice: %s", player, result)
     else:
-        logger.warning("Anonymous player is rolling the dice: %s", result)
+        LOGGER.warning("Anonymous player is rolling the dice: %s", result)
     return result
-
-
-def roll():
-    return randint(1, 6)

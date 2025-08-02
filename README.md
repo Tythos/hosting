@@ -70,15 +70,25 @@ Grafana is the primary presentation target for dashboarding each observability s
    
   - [x] Resume
 
-  - [x] Kifiew
+  - Non-hosted
 
-  - [ ] Non-hosted (??)
+    - [x] Kifiew
+
+    - [ ] Jabber
+
+    - [ ] Barebones
+
+    - [ ] Cuben
+
+    - [ ] Engine
+
+    - [ ] (miscellaneous)
 
   - [x] Macercy
 
-  - [ ] Aero?
+  - [ ] Aero
 
-  - [ ] Culinary Colqhoun?
+  - [ ] Culinary Colqhoun
 
   - [ ] Conferences
 
@@ -86,7 +96,7 @@ Grafana is the primary presentation target for dashboarding each observability s
 
   - [ ] Creatives
 
-  - [ ] KMZ/Geoint?
+  - [ ] KMZ/Geoint
 
   - [ ] Leroy
 
@@ -96,9 +106,7 @@ Grafana is the primary presentation target for dashboarding each observability s
 
   - [ ] Wallpapers
 
-  - [ ] Any other interesting top-level file contents
-
-- [ ] Honestly it wouldn't be a bad idea to demo and/or port a PHP app from the above list  
+- [x] Honestly it wouldn't be a bad idea to demo and/or port a PHP app from the above list  
 
 - [x] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
 
@@ -106,7 +114,19 @@ Grafana is the primary presentation target for dashboarding each observability s
 
 - [ ] Demonstrate/pathfind a database integration of some kind?
 
-- [ ] Redirect from tythos.net? (or replace TLD)
+- Replace tythos.net
+
+  - [ ] Migrate domain registration to Cloudflare
+
+  - [ ] Change TLD in HOST_NAME value
+
+  - [ ] Update Cloudflare parameters (zone, etc.)
+
+  - [ ] Force renewal of all certificates
+
+  - [ ] Remove/shutdown all old resources/subscriptsion
+
+  - [ ] Optionally look at migrating/merging Minecraft server as well?
 
 ## Status/Health cURL Queries
 

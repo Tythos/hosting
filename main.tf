@@ -1,3 +1,10 @@
+module "aero" {
+  source               = "./aero"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/aero"
+}
+
 module "easton" {
   source               = "./easton"
   HOST_NAME            = var.HOST_NAME

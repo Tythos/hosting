@@ -12,6 +12,13 @@ module "grafana" {
   HOST_NAME            = var.HOST_NAME
 }
 
+module "kifiew" {
+  source               = "./kifiew"
+  HOST_NAME            = var.HOST_NAME
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/kifiew"
+}
+
 module "loki" {
   source               = "./loki"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

@@ -70,7 +70,9 @@ Grafana is the primary presentation target for dashboarding each observability s
    
   - [x] Resume
 
-  - [ ] Non-hosted
+  - [x] Kifiew
+
+  - [ ] Non-hosted (??)
 
   - [ ] Macercy
 
@@ -89,8 +91,6 @@ Grafana is the primary presentation target for dashboarding each observability s
   - [ ] Leroy
 
   - [ ] No Debt Unpaid
-
-  - [ ] Soduko/Kifiew
 
   - [ ] The Writing Horse
 

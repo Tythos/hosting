@@ -86,7 +86,7 @@ Grafana is the primary presentation target for dashboarding each observability s
 
   - [x] Macercy
 
-  - [ ] Aero
+  - [x] Aero
 
   - [ ] Culinary Colqhoun
 

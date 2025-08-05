@@ -154,3 +154,21 @@ Assuming Tempo is up and an appropriate app is running (we use "flask-app" here)
 docker exec traefik_container curl http://tempo_container:3200/ready
 docker exec traefik_container curl "http://tempo_container:3200/api/search?tags=service.name%3Dflask-app&limit=10"
 ```
+
+## Email Traffic
+
+We have set up a Resend account for integration with client services within this orchestration (see `flask` application).
+
+This is configured to support *outgoing* traffic via addresses specific to this subdomain, but by default we construct one (`notifications@`) at the top level to share.
+
+We would also like to support forwarding for *incoming* traffic, likely to the same address used in ACME registration (for simplicity's sake), but:
+
+- [ ] This did not work via expected Terraform providers
+
+- [ ] It did finally work when we set it up manually in the CF dashboard
+
+- [ ] Hopefully this wasn't because of the email verification requirement/step (which obviously couldn't be automated)
+
+- [ ] Hopefully this *was* because we need to get the right combination of resources defined (addresses, rules, etc.)
+
+- [ ] Next step, then, is to back out references to the resources set up by the manual process to inspect/replicate a test rule for verification

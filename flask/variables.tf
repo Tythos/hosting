@@ -22,3 +22,8 @@ variable "TEMPO_ENDPOINT" {
   type        = string
   description = "The endpoint of the Tempo instance to send traces to"
 }
+
+variable "AUTOMATION_EMAIL_USER" {
+  type        = string
+  description = "The username for the automation email account"
+}

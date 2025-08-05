@@ -15,7 +15,8 @@ resource "docker_container" "flask_container" {
     "OTEL_TRACES_EXPORTER=otlp",
     "OTEL_LOGS_EXPORTER=none",
     "OTEL_METRICS_EXPORTER=none",
-    "RESEND_API_KEY=${var.RESEND_API_KEY}"
+    "RESEND_API_KEY=${var.RESEND_API_KEY}",
+    "AUTOMATION_ADDRESS=${var.AUTOMATION_EMAIL_USER}@${var.HOST_NAME}"
   ]
 
   entrypoint = [

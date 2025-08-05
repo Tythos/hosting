@@ -20,12 +20,13 @@ module "easton" {
 }
 
 module "flask" {
-  source               = "./flask"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  HOST_NAME            = var.HOST_NAME
-  LOKI_URL             = module.loki.LOKI_URL
-  RESEND_API_KEY       = var.RESEND_API_KEY
-  TEMPO_ENDPOINT       = module.tempo.TEMPO_ENDPOINT
+  source                = "./flask"
+  HOSTING_NETWORK_NAME  = docker_network.hosting_network.name
+  HOST_NAME             = var.HOST_NAME
+  LOKI_URL              = module.loki.LOKI_URL
+  RESEND_API_KEY        = var.RESEND_API_KEY
+  TEMPO_ENDPOINT        = module.tempo.TEMPO_ENDPOINT
+  AUTOMATION_EMAIL_USER = var.AUTOMATION_EMAIL_USER
 }
 
 module "grafana" {
@@ -53,6 +54,16 @@ module "macercy" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   STATE_PATH           = "${var.MOUNTED_VOLUME}/macercy"
+}
+
+module "mailman" {
+  source                = "./mailman"
+  CF_ACCOUNT_ID         = var.CF_ACCOUNT_ID
+  CF_API_KEY            = var.CF_API_KEY
+  CF_ZONE_ID            = var.CF_ZONE_ID
+  ACME_EMAIL            = var.ACME_EMAIL
+  HOST_NAME             = var.HOST_NAME
+  AUTOMATION_EMAIL_USER = var.AUTOMATION_EMAIL_USER
 }
 
 module "node_exporter" {

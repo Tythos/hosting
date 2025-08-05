@@ -13,6 +13,11 @@ variable "LETSENCRYPT_ORIGIN" {
   description = "The origin to use for ACME certificate requests; defaults to staging, change to production when ready"
 }
 
+variable "CF_ACCOUNT_ID" {
+  type        = string
+  description = "The ID of the Cloudflare account"
+}
+
 variable "CF_API_KEY" {
   type        = string
   description = "The API key to use for Cloudflare DNS updates"
@@ -23,6 +28,11 @@ variable "CF_DNS_API_TOKEN" {
   description = "The DNS API token to use for Cloudflare DNS updates"
 }
 
+variable "CF_ZONE_ID" {
+  type        = string
+  description = "The ID of the Cloudflare zone (to use for email routing)"
+}
+
 variable "MOUNTED_VOLUME" {
   type        = string
   description = "Path where metrics, logs, and events from Loki will be cached/stored"
@@ -31,4 +41,9 @@ variable "MOUNTED_VOLUME" {
 variable "RESEND_API_KEY" {
   type        = string
   description = "The API key to use for Resend email sending"
+}
+
+variable "AUTOMATION_EMAIL_USER" {
+  type        = string
+  description = "The username for the automation email account"
 }

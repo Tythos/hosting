@@ -34,8 +34,9 @@ def post_email():
     """
     if False:
         resend.api_key = os.environ.get("RESEND_API_KEY")
+        automation_address = os.environ.get("AUTOMATION_ADDRESS")
         email = {}
-        email["from"] = "notifications@tythos.io"
+        email["from"] = automation_address
         email["to"] = "bekirkpatrick@proton.me"
         email["subject"] = "Farewell, Cruel World"
         email["html"] = "<p>This is a paragraph.</p><p>Isn't it lovely?</p>"

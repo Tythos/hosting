@@ -27,3 +27,8 @@ variable "MOUNTED_VOLUME" {
   type        = string
   description = "Path where metrics, logs, and events from Loki will be cached/stored"
 }
+
+variable "RESEND_API_KEY" {
+  type        = string
+  description = "The API key to use for Resend email sending"
+}

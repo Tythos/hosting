@@ -24,6 +24,8 @@ module "flask" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   LOKI_URL             = module.loki.LOKI_URL
+  RESEND_API_KEY       = var.RESEND_API_KEY
+  TEMPO_ENDPOINT       = module.tempo.TEMPO_ENDPOINT
 }
 
 module "grafana" {

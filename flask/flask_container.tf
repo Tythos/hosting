@@ -6,7 +6,7 @@ resource "docker_container" "flask_container" {
 
   env = [
     "OTEL_SERVICE_NAME=flask-app",
-    "OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo_container:4318",
+    "OTEL_EXPORTER_OTLP_ENDPOINT=${var.TEMPO_ENDPOINT}",
     "OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf",
     "OTEL_PYTHON_LOG_CORRELATION=true",
     "OTEL_TRACES_SAMPLER=always_on",
@@ -14,7 +14,8 @@ resource "docker_container" "flask_container" {
     "OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true",
     "OTEL_TRACES_EXPORTER=otlp",
     "OTEL_LOGS_EXPORTER=none",
-    "OTEL_METRICS_EXPORTER=none"
+    "OTEL_METRICS_EXPORTER=none",
+    "RESEND_API_KEY=${var.RESEND_API_KEY}"
   ]
 
   entrypoint = [

@@ -47,3 +47,9 @@ variable "AUTOMATION_EMAIL_USER" {
   type        = string
   description = "The username for the automation email account"
 }
+
+variable "N8N_ENCRYPTION_KEY" {
+  type        = string
+  description = "Encryption key for n8n data (should be a 32-character random string)"
+  sensitive   = true
+}

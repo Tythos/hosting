@@ -163,12 +163,28 @@ This is configured to support *outgoing* traffic via addresses specific to this 
 
 We would also like to support forwarding for *incoming* traffic, likely to the same address used in ACME registration (for simplicity's sake), but:
 
-- [ ] This did not work via expected Terraform providers
+- This did not work via expected Terraform providers
 
-- [ ] It did finally work when we set it up manually in the CF dashboard
+- It did finally work when we set it up manually in the CF dashboard
 
-- [ ] Hopefully this wasn't because of the email verification requirement/step (which obviously couldn't be automated)
+- Hopefully this wasn't because of the email verification requirement/step (which obviously couldn't be automated)
 
-- [ ] Hopefully this *was* because we need to get the right combination of resources defined (addresses, rules, etc.)
+- Hopefully this *was* because we need to get the right combination of resources defined (addresses, rules, etc.)
 
-- [ ] Next step, then, is to back out references to the resources set up by the manual process to inspect/replicate a test rule for verification
+- Next step, then, is to back out (or at least document) 0references to the resources set up by the manual process to inspect/replicate a test rule for verification
+
+## Sliplane Services
+
+From the following great article:
+
+https://dev.to/code42cate/how-i-save-by-self-hosting-these-5-open-source-tools-17mb
+
+- [x] Plunk (used Resend instead)
+
+- [x] n8n (neat but might not keep? could use as an ai-enabled argo/flux replacement, i suppose)
+
+- [ ] Postgres
+
+- [ ] Nextcloud (minio instead?)
+
+- [ ] Redis

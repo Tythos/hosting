@@ -6,3 +6,8 @@ output "ADMIN_PASSWORD" {
 output "TEMPO_ENDPOINT" {
   value = module.tempo.TEMPO_ENDPOINT
 }
+
+output "POSTGRES_PASSWORD" {
+  value     = module.postgres.POSTGRES_PASSWORD
+  sensitive = true
+}

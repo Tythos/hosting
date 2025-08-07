@@ -1,3 +1,11 @@
+module "adminer" {
+  source               = "./adminer"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  POSTGRES_HOST        = module.postgres.POSTGRES_HOST
+  POSTGRES_PASSWORD    = module.postgres.POSTGRES_PASSWORD
+}
+
 module "aero" {
   source               = "./aero"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
@@ -77,6 +85,14 @@ module "n8n" {
 module "node_exporter" {
   source               = "./node_exporter"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+}
+
+module "postgres" {
+  source               = "./postgres"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/postgres"
+  LOKI_URL             = module.loki.LOKI_URL
 }
 
 module "prometheus" {

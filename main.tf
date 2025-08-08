@@ -110,6 +110,15 @@ module "resume" {
   LOKI_URL             = module.loki.LOKI_URL
 }
 
+module "seafile" {
+  source               = "./seafile"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/seafile"
+  ACME_EMAIL           = var.ACME_EMAIL
+  ADMIN_PASSWORD       = random_password.admin_password.result
+}
+
 module "smogwarts" {
   source               = "./smogwarts"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

@@ -197,6 +197,6 @@ https://dev.to/code42cate/how-i-save-by-self-hosting-these-5-open-source-tools-1
 
 - [x] Postgres (we also included Adminer as a management and verification app)
 
-- [ ] Nextcloud (minio instead?)
+- [x] Seafile (alternative to Nextcloud, minio)
 
-- [ ] Redis
+- [x] Redis

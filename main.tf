@@ -102,6 +102,14 @@ module "prometheus" {
   STATE_PATH           = "${var.MOUNTED_VOLUME}/observability/prometheus"
 }
 
+module "redis" {
+  source               = "./redis"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/redis"
+  LOKI_URL             = module.loki.LOKI_URL
+}
+
 module "resume" {
   source               = "./resume"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

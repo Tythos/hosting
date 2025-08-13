@@ -120,7 +120,7 @@ Grafana is the primary presentation target for dashboarding each observability s
 
   - [ ] Change TLD in HOST_NAME value
 
-  - [ ] Update Cloudflare parameters (zone, etc.)
+  - [x] Update Cloudflare parameters (zone, etc.)
 
   - [ ] Force renewal of all certificates
 
@@ -200,3 +200,13 @@ https://dev.to/code42cate/how-i-save-by-self-hosting-these-5-open-source-tools-1
 - [x] Seafile (alternative to Nextcloud, minio)
 
 - [x] Redis
+
+## Household Utilities
+
+- [ ] Media server of some kind? (bonus points for Roku channel support)
+
+- [x] Actual for budgeting purposes
+
+- [ ] Coupler for provisioning a Grafana source from Actual database
+
+- [ ] Stonks!

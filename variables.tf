@@ -53,3 +53,8 @@ variable "N8N_ENCRYPTION_KEY" {
   description = "Encryption key for n8n data (should be a 32-character random string)"
   sensitive   = true
 }
+
+variable "ACTUAL_PASSWORD" {
+  type        = string
+  description = "The password for the Actual instance"
+}

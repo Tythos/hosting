@@ -51,6 +51,13 @@ module "grafana" {
   HOST_NAME            = var.HOST_NAME
 }
 
+module "horsemen" {
+  source               = "./horsemen"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  ACTUAL_PASSWORD      = var.ACTUAL_PASSWORD
+}
+
 module "kifiew" {
   source               = "./kifiew"
   HOST_NAME            = var.HOST_NAME

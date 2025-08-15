@@ -1,0 +1,14 @@
+{
+  "name": "horsemen",
+  "version": "0.1.0",
+  "main": "server.js",
+  "license": "MIT",
+  "dependencies": {
+    "@actual-app/api": "^25.8.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "scripts": {
+    "serve": "node server.js"
+  }
+}

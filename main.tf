@@ -56,6 +56,7 @@ module "horsemen" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   ACTUAL_PASSWORD      = var.ACTUAL_PASSWORD
+  ACTUAL_BUDGET        = var.ACTUAL_BUDGET
 }
 
 module "kifiew" {

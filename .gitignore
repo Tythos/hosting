@@ -1,7 +1,6 @@
 .terraform/
 .vscode/
 loki-data/
-scripts/
 promtail-positions/
 .terraform.lock.hcl
 .terraform.tfstate.lock.info

@@ -193,6 +193,8 @@ https://dev.to/code42cate/how-i-save-by-self-hosting-these-5-open-source-tools-1
 
 - [x] Plunk (used Resend instead)
 
+      - [ ] Configure and verify Grafana alerts integration wtih Resend
+
 - [x] n8n (neat but might not keep? could use as an ai-enabled argo/flux replacement, i suppose)
 
 - [x] Postgres (we also included Adminer as a management and verification app)

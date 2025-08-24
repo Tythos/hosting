@@ -12,3 +12,8 @@ variable "ACTUAL_PASSWORD" {
   type        = string
   description = "The password for the Actual instance"
 }
+
+variable "ACTUAL_BUDGET" {
+  type        = string
+  description = "The budget UUID used by the Actual instance"
+}

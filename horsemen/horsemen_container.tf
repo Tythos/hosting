@@ -3,7 +3,8 @@ resource "docker_container" "horsemen_container" {
   name  = "horsemen_container"
 
   env = [
-    "ACTUAL_PASSWORD=${var.ACTUAL_PASSWORD}"
+    "ACTUAL_PASSWORD=${var.ACTUAL_PASSWORD}",
+    "ACTUAL_BUDGET=${var.ACTUAL_BUDGET}"
   ]
 
   networks_advanced {

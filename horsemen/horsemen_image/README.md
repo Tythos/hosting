@@ -1,0 +1,66 @@
+# Actual Budget API
+
+* Budgets
+  - getBudgetMonths
+  - getBudgetMonth
+  - setBudgetAmount
+  - setBudgetCarryover
+  - holdBudgetForNextMonth
+  - resetBudgetHold
+* Transactions
+  - Transaction
+  - addTransactions
+  - importTransactions
+  - getTransactions
+  - updateTransaction
+  - deleteTransaction
+* Accounts
+  - Account
+  - getAccounts
+  - createAccount
+  - updateAccount
+  - closeAccount
+  - reopenAccount
+  - deleteAccount
+  - getAccountBalance
+* Categories
+  - Category
+  - getCategories
+  - createCategory
+  - updateCategory
+  - deleteCategory
+* Category Groups
+  - Category group
+  - getCategoryGroups
+  - createCategoryGroup
+  - updateCategoryGroup
+  - deleteCategoryGroup
+* Payees
+  - Payee
+  - getPayees
+  - createPayee
+  - updatePayee
+  - deletePayee
+  - mergePayees
+* Rules
+  - ConditionOrAction
+  - Rule
+  - Payee rule
+  - getRules
+  - getPayeeRules
+  - createRule
+  - updateRule
+  - deleteRule
+* Misc
+  - BudgetFile
+  - initConfig
+  - init
+  - shutdown
+  - sync
+  - runBankSync
+  - runImport
+  - getBudgets
+  - loadBudget
+  - downloadBudget
+  - batchBudgetUpdates
+  - runQuery

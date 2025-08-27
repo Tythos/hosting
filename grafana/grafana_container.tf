@@ -7,6 +7,11 @@ resource "docker_container" "grafana_container" {
     name = var.HOSTING_NETWORK_NAME
   }
 
+  volumes {
+    host_path      = var.STATE_PATH
+    container_path = "/var/lib/grafana"
+  }
+
   labels {
     label = "traefik.http.routers.grafana.rule"
     value = "Host(`grafana.${var.HOST_NAME}`)"

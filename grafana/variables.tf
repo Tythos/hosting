@@ -12,3 +12,8 @@ variable "HOST_NAME" {
   type        = string
   description = "Concatenated to subdomain to construct FQDN used in routing rules and TLS signing"
 }
+
+variable "STATE_PATH" {
+  type        = string
+  description = "Path where Grafana data, dashboards, and data sources will be persisted"
+}

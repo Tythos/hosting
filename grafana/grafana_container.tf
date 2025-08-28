@@ -8,7 +8,12 @@ resource "docker_container" "grafana_container" {
   }
 
   volumes {
-    host_path      = var.STATE_PATH
+    host_path      = "${var.STATE_PATH}/provisioning"
+    container_path = "/etc/grafana/provisioning"
+  }
+
+  volumes {
+    host_path      = "${var.STATE_PATH}/data"
     container_path = "/var/lib/grafana"
   }
 

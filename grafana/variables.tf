@@ -15,5 +15,5 @@ variable "HOST_NAME" {
 
 variable "STATE_PATH" {
   type        = string
-  description = "Path where Grafana data, dashboards, and data sources will be persisted"
+  description = "Base path where Grafana data will be stored (provisioning configs and runtime data)"
 }

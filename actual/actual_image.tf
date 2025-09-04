@@ -1,3 +1,3 @@
 resource "docker_image" "actual_image" {
-  name = "actualbudget/actual-server:25.8.0"
+  name = "actualbudget/actual-server:25.9.0"
 }

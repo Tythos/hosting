@@ -62,6 +62,33 @@ async function safeApiShutdown() {
     }
 }
 
+/* --- these are private / non-exported functions and assume the api has been initialized but not yet shut down--- */
+const getAllAccounts = async () => {
+    // await ensureApiInitialized();
+    const accounts = await api.getAccounts();
+    // await safeApiShutdown();
+    return Array.from(accounts);
+};
+
+const getAllTransactions = async(start_date, end_date) => {
+    // maybe we do budgeted only?
+    // await ensureApiInitialized();
+    const accounts = await getAllAccounts();
+    let transactions = [];
+    for (let i = 0; i < accounts.length; i += 1) {
+        transactions = [...transactions, ...await api.getTransactions(accounts[i].id, start_date, end_date)];
+    }
+    // await safeApiShutdown();
+    return Array.from(transactions);
+};
+
+const getAllCategories = async() => {
+    // await ensureApiInitialized();
+    const categories = await api.getCategories();
+    // await safeApiShutdown();
+    return Array.from(categories);
+};
+
 app.use(cors());
 app.use(express.json());
 
@@ -217,7 +244,6 @@ app.get("/payees", async (req, res) => {
     }
 });
 
-
 app.get("/balance-sheet", async (req, res) => {
     try {
         await ensureApiInitialized();
@@ -306,6 +332,93 @@ app.get("/income-statement", async (req, res) => {
     } catch (error) {
         console.error("Error in /income-statement endpoint:", error);
         res.status(500).json({ error: "Failed to fetch income statement data" });
+    }
+});
+
+app.get("/cashflow/:identifier/summary", async (req, res) => {
+    try {
+        const identifier = req.params.identifier;
+        const [year, month] = identifier.split("-").map(x => +x);
+        const start_date = new Date(year, month-1, 1);
+        const end_date = new Date(year, month, 0);
+        await ensureApiInitialized();
+        const accounts = await getAllAccounts();
+        const transactions = await getAllTransactions(start_date, end_date);
+        const categories = await getAllCategories();
+        const account_uuids = accounts.map((a) => a.id);
+        const category_uuids = categories.map((c) => c.id);
+        const cashflow_summary = {
+            "total_income": 0,
+            "total_expenses": 0,
+            "total_investment": 0,
+            "net_cash": 0,
+            "num_transactions": transactions.length
+        };
+        for (let i = 0; i < transactions.length; i += 1) {
+            const account = accounts[account_uuids.indexOf(transactions[i].account)];
+            const category = categories[category_uuids.indexOf(transactions[i].category)];
+            if (account.offbudget) { continue; } // cashflow at the budgeting boundary
+            if (!account || !category) {
+                console.warn(`Transaction ${transactions[i].id} has no account or category`);
+                continue;
+            }
+            if (category.name.startsWith("3")) { // equity deposits (negative)
+                cashflow_summary.total_investment += -transactions[i].amount * 1e-2;
+            } else if (category.name.startsWith("4")) { // income deposits (positive)
+                cashflow_summary.total_income += transactions[i].amount * 1e-2;
+            } else if (category.name.startsWith("5")) { // expense withdrawls (negative)
+                cashflow_summary.total_expenses += -transactions[i].amount * 1e-2;
+            } else { // some other series not included in cashflow summary
+                continue;
+            }
+        }
+        cashflow_summary.net_cash = cashflow_summary.total_income - cashflow_summary.total_expenses - cashflow_summary.total_investment;
+        res.json(cashflow_summary);
+    } catch (error) {
+        console.error("Error in /cashflow-summary/:identifier endpoint:", error);
+        res.status(500).json({ error: "Failed to fetch cashflow summary data", details: error.message });
+    }
+});
+
+app.get("/cashflow/:identifier/income", async (req, res) => {
+    try {
+        const identifier = req.params.identifier;
+        const [year, month] = identifier.split("-").map(x => +x);
+        const start_date = new Date(year, month-1, 1);
+        const end_date = new Date(year, month, 0);
+        await ensureApiInitialized();
+        const accounts = await getAllAccounts();
+        const transactions = await getAllTransactions(start_date, end_date);
+        const categories = await getAllCategories();
+        const account_uuids = accounts.map((a) => a.id);
+        const category_uuids = categories.map((c) => c.id);
+        const income_breakdown = {}; // maps relevant categories to sum and count
+        for (let i = 0; i < transactions.length; i += 1) {
+            const account = accounts[account_uuids.indexOf(transactions[i].account)];
+            const category = categories[category_uuids.indexOf(transactions[i].category)];
+            if (account.offbudget) { continue; } // cashflow at the budgeting boundary
+            if (!account || !category) {
+                console.warn(`Transaction ${transactions[i].id} has no account or category`);
+                continue;
+            }
+            if (category.name.startsWith("4")) { // income deposits (positive)
+                if (!income_breakdown.hasOwnProperty(category.name)) {
+                    income_breakdown[category.name] = {
+                        "sum": 0,
+                        "count": 0,
+                        "name": category.name
+                    };
+                }
+                income_breakdown[category.name].sum += transactions[i].amount * 1e-2;
+                income_breakdown[category.name].count += 1;
+            } else { // some other series not included in cashflow summary
+                continue;
+            }
+        }
+        res.json(Object.values(income_breakdown));
+    } catch (error) {
+        console.error("Error in /cashflow-summary/:identifier endpoint:", error);
+        res.status(500).json({ error: "Failed to fetch cashflow summary data", details: error.message });
     }
 });
 

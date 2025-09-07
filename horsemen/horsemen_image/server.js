@@ -20,23 +20,23 @@ async function ensureApiInitialized() {
     if (apiInitialized && !apiShutdownInProgress) {
         return;
     }
-    
+
     try {
         // Force shutdown if in progress
         if (apiShutdownInProgress) {
-            await api.shutdown().catch(() => {});
+            await api.shutdown().catch(() => { });
             apiShutdownInProgress = false;
         }
-        
+
         await api.init({
             serverURL: "http://actual_container:5006",
             password: ACTUAL_PASSWORD
         });
-        
+
         await api.downloadBudget(ACTUAL_BUDGET, {
             password: ACTUAL_PASSWORD
         });
-        
+
         apiInitialized = true;
     } catch (error) {
         console.error("Failed to initialize API:", error);
@@ -50,7 +50,7 @@ async function safeApiShutdown() {
     if (!apiInitialized || apiShutdownInProgress) {
         return;
     }
-    
+
     try {
         apiShutdownInProgress = true;
         await api.shutdown();
@@ -70,7 +70,7 @@ const getAllAccounts = async () => {
     return Array.from(accounts);
 };
 
-const getAllTransactions = async(start_date, end_date) => {
+const getAllTransactions = async (start_date, end_date) => {
     // maybe we do budgeted only?
     // await ensureApiInitialized();
     const accounts = await getAllAccounts();
@@ -82,7 +82,7 @@ const getAllTransactions = async(start_date, end_date) => {
     return Array.from(transactions);
 };
 
-const getAllCategories = async() => {
+const getAllCategories = async () => {
     // await ensureApiInitialized();
     const categories = await api.getCategories();
     // await safeApiShutdown();
@@ -178,6 +178,93 @@ app.get("/months/:identifier/transactions", async (req, res) => {
     }
 });
 
+/**
+ * Retrieves details of the specific category in a group for the given month.
+ * Objective here is to drive a "glideslope" presentation in Grafana within
+ * which the average rate of a category consumption over the course of a month
+ * is compared against the actual rate of expenditure from related
+ * transactions. The category name and budgeted amount are returned, as well as
+ * a datetime-amount time series built from this particular month's transaction
+ * data across all accounts.
+ * 
+ * Note that we distinguish between a "category" glideslope and a "group"
+ * glideslope, which aggregates identical data for all budgets and transactions
+ * in a given set of categories (e.g., "5000 - Housing Expenses").
+ * 
+ * The getBudgetMonth() returns a Promise<Budget>, within which there is a
+ * categoryGroups array. Each CategoryGroup object in that array will have a
+ * categories list, within which each specific item will include "budgeted",
+ * "spent", and "balance" properties. We are mainly interested in `budgeted`
+ * since we will compute our own running total.
+ */
+app.get("/glideslope/:identifier/category/:category_uuid", async (req, res) => {
+    try {
+        const identifier = req.params.identifier;
+        const category_uuid = req.params.category_uuid;
+        await ensureApiInitialized();
+        const [year, month] = identifier.split("-").map(x => +x);
+        const accounts = await api.getAccounts();
+        const budget_month = await api.getBudgetMonth(identifier);
+        const categories = budget_month.categoryGroups.flatMap(cg => cg.categories);
+        const category = categories.find(c => c.id === category_uuid);
+        if (!category) {
+            res.status(404).json({ error: "Category not found" });
+            return;
+        }
+        if (category.is_income) {
+            res.status(400).json({ error: "Category is income (glideslope only supported for expenses)" });
+            return;
+        }
+
+        // recommended category test: "5210 - Groceries"
+        const bom = new Date(year, month - 1, 1);
+        const eom = new Date(year, month, 0);
+        let glideslope = {
+            "category_name": category.name,
+            "budgeted_amount": category.budgeted * 1e-2,
+            "underspending_pct": 0.0, // will calculate once actual glideslope has been accumulated
+            "budgeted_glideslope": [
+                [bom, category.budgeted * 1e-2],
+                [eom, 0.0]
+            ]
+        };
+
+        // now we must iterate over all transactions, which must be done on an account-by-account basis
+        let actual_glideslope = []; // unsorted [datetime, cumulative, change]
+        for (let i = 0; i < accounts.length; i += 1) {
+            const transactions = await api.getTransactions(
+                accounts[i].id,
+                bom,
+                eom
+            );
+            for (let j = 0; j < transactions.length; j += 1) {
+                const t = transactions[j];
+                if (t.category !== category_uuid) { continue; }
+                if (!t.hasOwnProperty("amount")) { continue; }
+                actual_glideslope.push([new Date(t.date), 0, 1e-2 * t.amount]);
+            }
+        }
+        actual_glideslope.sort((a, b) => a[0].valueOf() - b[0].valueOf());
+
+        // now that it is chonological, extend "actual glideslope" with cumulative (after transaction) amount
+        let running_total = glideslope.budgeted_amount;
+        for (let i = 0; i < actual_glideslope.length; i += 1) {
+            running_total += actual_glideslope[i][2];
+            actual_glideslope[i][1] = running_total;
+        }
+        glideslope["actual_glideslope"] = actual_glideslope;
+        res.json(glideslope);
+    } catch (error) {
+        console.error("Error in /months/:identifier/budget/:category endpoint:", error);
+        res.status(500).json({ error: "Failed to fetch category budget details data" });
+    }
+});
+
+app.get("/glideslope/:identifier/group/:group_uuid", async (req, res) => {
+    // recommended group test: "5200 - Food and Dining"
+    res.json({ "ERROR": "Not implemented" });
+});
+
 app.get("/accounts", async (req, res) => {
     try {
         await ensureApiInitialized();
@@ -205,10 +292,12 @@ app.get("/categories", async (req, res) => {
         let categories = [];
         for (let i = 0; i < cgs.length; i += 1) {
             categories.push({
+                "group_uuid": cgs[i].id,
                 "group_name": cgs[i].name,
                 "is_income_group": cgs[i].is_income,
                 "categories": cgs[i].categories.map(c => {
                     return {
+                        "category_uuid": c.id,
                         "category_name": c.name,
                         "is_income_category": c.is_income
                     };
@@ -339,7 +428,7 @@ app.get("/cashflow/:identifier/summary", async (req, res) => {
     try {
         const identifier = req.params.identifier;
         const [year, month] = identifier.split("-").map(x => +x);
-        const start_date = new Date(year, month-1, 1);
+        const start_date = new Date(year, month - 1, 1);
         const end_date = new Date(year, month, 0);
         await ensureApiInitialized();
         const accounts = await getAllAccounts();
@@ -384,7 +473,7 @@ app.get("/cashflow/:identifier/income", async (req, res) => {
     try {
         const identifier = req.params.identifier;
         const [year, month] = identifier.split("-").map(x => +x);
-        const start_date = new Date(year, month-1, 1);
+        const start_date = new Date(year, month - 1, 1);
         const end_date = new Date(year, month, 0);
         await ensureApiInitialized();
         const accounts = await getAllAccounts();
@@ -415,9 +504,61 @@ app.get("/cashflow/:identifier/income", async (req, res) => {
                 continue;
             }
         }
+        const keys = Object.keys(income_breakdown);
+        for (let j = 0; j < keys.length; j += 1) {
+            const key = keys[j];
+            income_breakdown[key]["average_transaction_amount"] = income_breakdown[key].sum / income_breakdown[key].count;
+        }
         res.json(Object.values(income_breakdown));
     } catch (error) {
-        console.error("Error in /cashflow-summary/:identifier endpoint:", error);
+        console.error("Error in /cashflow/:identifier/income endpoint:", error);
+        res.status(500).json({ error: "Failed to fetch cashflow summary data", details: error.message });
+    }
+});
+
+app.get("/cashflow/:identifier/expenses", async (req, res) => {
+    try {
+        const identifier = req.params.identifier;
+        const [year, month] = identifier.split("-").map(x => +x);
+        const start_date = new Date(year, month - 1, 1);
+        const end_date = new Date(year, month, 0);
+        await ensureApiInitialized();
+        const accounts = await getAllAccounts();
+        const transactions = await getAllTransactions(start_date, end_date);
+        const categories = await getAllCategories();
+        const account_uuids = accounts.map((a) => a.id);
+        const category_uuids = categories.map((c) => c.id);
+        const expenses_breakdown = {}; // maps relevant categories to sum and count
+        for (let i = 0; i < transactions.length; i += 1) {
+            const account = accounts[account_uuids.indexOf(transactions[i].account)];
+            const category = categories[category_uuids.indexOf(transactions[i].category)];
+            if (account.offbudget) { continue; } // cashflow at the budgeting boundary
+            if (!account || !category) {
+                console.warn(`Transaction ${transactions[i].id} has no account or category`);
+                continue;
+            }
+            if (category.name.startsWith("5")) { // expense withdrawls (negative)
+                if (!expenses_breakdown.hasOwnProperty(category.name)) {
+                    expenses_breakdown[category.name] = {
+                        "sum": 0,
+                        "count": 0,
+                        "name": category.name
+                    };
+                }
+                expenses_breakdown[category.name].sum += transactions[i].amount * -1e-2;
+                expenses_breakdown[category.name].count += 1;
+            } else { // some other series not included in cashflow summary
+                continue;
+            }
+        }
+        const keys = Object.keys(expenses_breakdown);
+        for (let j = 0; j < keys.length; j += 1) {
+            const key = keys[j];
+            expenses_breakdown[key]["average_transaction_amount"] = expenses_breakdown[key].sum / expenses_breakdown[key].count;
+        }
+        res.json(Object.values(expenses_breakdown));
+    } catch (error) {
+        console.error("Error in /cashflow/:identifier/expenses endpoint:", error);
         res.status(500).json({ error: "Failed to fetch cashflow summary data", details: error.message });
     }
 });

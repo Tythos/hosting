@@ -222,12 +222,14 @@ app.get("/glideslope/:identifier/category/:category_uuid", async (req, res) => {
         let glideslope = {
             "category_name": category.name,
             "budgeted_amount": category.budgeted * 1e-2,
+            "last_time_pct": 0.0, // facilitates date progression through month
             "underspending_pct": 0.0, // will calculate once actual glideslope has been accumulated
-            "budgeted_glideslope": [
-                [bom, category.budgeted * 1e-2],
-                [eom, 0.0]
-            ]
+            "glideslope_series": [],
         };
+        const budgeted_glideslope = [
+            [bom, category.budgeted * 1e-2],
+            [eom, 0.0]
+        ];
 
         // now we must iterate over all transactions, which must be done on an account-by-account basis
         let actual_glideslope = []; // unsorted [datetime, cumulative, change]
@@ -246,13 +248,42 @@ app.get("/glideslope/:identifier/category/:category_uuid", async (req, res) => {
         }
         actual_glideslope.sort((a, b) => a[0].valueOf() - b[0].valueOf());
 
-        // now that it is chonological, extend "actual glideslope" with cumulative (after transaction) amount
+        // now that it is chronological, extend "actual glideslope" with cumulative (after transaction) amount
         let running_total = glideslope.budgeted_amount;
         for (let i = 0; i < actual_glideslope.length; i += 1) {
             running_total += actual_glideslope[i][2];
             actual_glideslope[i][1] = running_total;
         }
-        glideslope["actual_glideslope"] = actual_glideslope;
+        glideslope["last_time_pct"] = (actual_glideslope[actual_glideslope.length - 1][0].valueOf() - bom.valueOf()) / (eom.valueOf() - bom.valueOf());
+
+        // resample both series to a common grid
+        const n_days = parseInt((new Date(year, month, 0) - new Date(year, month - 1, 1)) * 1e-3 / 86400) + 1;
+        let i0 = 0; // index of first "actual" point after the current day
+        for (let d = 1; d <= n_days; d += 1) {
+            const pct = (d - 1) / (n_days - 1);
+
+            // budgeted glideslope is linear decrease
+            let budgeted = budgeted_glideslope[0][1] * (1 - pct);
+            let actual = budgeted;
+
+            // advance to first "actual" point after the current day
+            while (i0 < actual_glideslope.length && actual_glideslope[i0][0].valueOf() < new Date(year, month - 1, d + 1).valueOf()) {
+                i0 += 1;
+            }
+            if (d == 1) {
+                // if there were no transactions on the first day, use initial budget
+                if (i0 == 0) {
+                    actual = budgeted_glideslope[0][1];
+                } else {
+                    actual = actual_glideslope[i0 - 1][1];
+                }
+            } else {
+                // if there were no transactions on this day, use the most recent point
+                actual = actual_glideslope[i0 - 1][1];
+            }
+            glideslope["glideslope_series"].push([new Date(year, month - 1, d), budgeted, actual]);
+        }
+
         res.json(glideslope);
     } catch (error) {
         console.error("Error in /months/:identifier/budget/:category endpoint:", error);

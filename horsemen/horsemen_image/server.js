@@ -284,6 +284,10 @@ app.get("/glideslope/:identifier/category/:category_uuid", async (req, res) => {
             glideslope["glideslope_series"].push([new Date(year, month - 1, d), budgeted, actual]);
         }
 
+        // finally, compute underspending percentage from last data point
+        const last = glideslope["glideslope_series"][glideslope["glideslope_series"].length - 1];
+        glideslope["underspending_pct"] = last[1] / budgeted_amount;
+
         res.json(glideslope);
     } catch (error) {
         console.error("Error in /months/:identifier/budget/:category endpoint:", error);
@@ -291,9 +295,121 @@ app.get("/glideslope/:identifier/category/:category_uuid", async (req, res) => {
     }
 });
 
+/**
+ * Like category glideslope, but for a group of categories.
+ */
 app.get("/glideslope/:identifier/group/:group_uuid", async (req, res) => {
-    // recommended group test: "5200 - Food and Dining"
-    res.json({ "ERROR": "Not implemented" });
+    try {
+        const identifier = req.params.identifier;
+        const group_uuid = req.params.group_uuid;
+        await ensureApiInitialized();
+        const [year, month] = identifier.split("-").map(x => +x);
+        const accounts = await api.getAccounts();
+        const budget_month = await api.getBudgetMonth(identifier);
+        const budget_groups = budget_month.categoryGroups;
+        const group = budget_groups.find(g => g.id === group_uuid);
+        if (!group) {
+            res.status(404).json({ error: "Group not found" });
+            return;
+        }
+        if (group.is_income) {
+            res.status(400).json({ error: "Group is income (glideslope only supported for expenses)" });
+            return;
+        }
+
+        // Group requires aggregated calculation of budgeted amount
+        let budgeted_amount = 0;
+        for (let i = 0; i < group.categories.length; i += 1) {
+            budgeted_amount += group.categories[i].budgeted * 1e-2;
+        }
+
+        // recommended group test: "5200 - Food and Dining"
+        const bom = new Date(year, month - 1, 1);
+        const eom = new Date(year, month, 0);
+        let glideslope = {
+            "group_name": group.name,
+            "budgeted_amount": budgeted_amount,
+            "last_time_pct": 0.0, // facilitates date progression through month
+            "underspending_pct": 0.0, // will calculate once actual glideslope has been accumulated
+            "glideslope_series": [],
+        };
+        const budgeted_glideslope = [
+            [bom, budgeted_amount],
+            [eom, 0.0]
+        ];
+
+        // we must aggreegate a mapping of catgories to their group--or, a list of all catgories in the target group
+        const groups = await api.getCategoryGroups();
+        const group_uuids = groups.map(g => g.id);
+        const i = group_uuids.indexOf(group_uuid);
+        if (i == -1) {
+            res.status(404).json({ error: "Group not found" });
+            return;
+        }
+        const category_uuids = group.categories.map(c => c.id);
+
+        // now we must iterate over all transactions, which must be done on an account-by-account basis
+        let actual_glideslope = []; // unsorted [datetime, cumulative, change]
+        for (let i = 0; i < accounts.length; i += 1) {
+            const transactions = await api.getTransactions(
+                accounts[i].id,
+                bom,
+                eom
+            );
+            for (let j = 0; j < transactions.length; j += 1) {
+                const t = transactions[j];
+                if (category_uuids.indexOf(t.category) < 0) { continue; }
+                if (!t.hasOwnProperty("amount")) { continue; }
+                actual_glideslope.push([new Date(t.date), 0, 1e-2 * t.amount]);
+            }
+        }
+        actual_glideslope.sort((a, b) => a[0].valueOf() - b[0].valueOf());
+
+        // now that it is chronological, extend "actual glideslope" with cumulative (after transaction) amount
+        let running_total = glideslope.budgeted_amount;
+        for (let i = 0; i < actual_glideslope.length; i += 1) {
+            running_total += actual_glideslope[i][2];
+            actual_glideslope[i][1] = running_total;
+        }
+        glideslope["last_time_pct"] = (actual_glideslope[actual_glideslope.length - 1][0].valueOf() - bom.valueOf()) / (eom.valueOf() - bom.valueOf());
+
+        // resample both series to a common grid
+        const n_days = parseInt((new Date(year, month, 0) - new Date(year, month - 1, 1)) * 1e-3 / 86400) + 1;
+        let i0 = 0; // index of first "actual" point after the current day
+        for (let d = 1; d <= n_days; d += 1) {
+            const pct = (d - 1) / (n_days - 1);
+
+            // budgeted glideslope is linear decrease
+            let budgeted = budgeted_glideslope[0][1] * (1 - pct);
+            let actual = budgeted;
+
+            // advance to first "actual" point after the current day
+            while (i0 < actual_glideslope.length && actual_glideslope[i0][0].valueOf() < new Date(year, month - 1, d + 1).valueOf()) {
+                i0 += 1;
+            }
+            if (d == 1) {
+                // if there were no transactions on the first day, use initial budget
+                if (i0 == 0) {
+                    actual = budgeted_glideslope[0][1];
+                } else {
+                    actual = actual_glideslope[i0 - 1][1];
+                }
+            } else {
+                // if there were no transactions on this day, use the most recent point
+                actual = actual_glideslope[i0 - 1][1];
+            }
+            glideslope["glideslope_series"].push([new Date(year, month - 1, d), budgeted, actual]);
+        }
+
+        // finally, compute underspending percentage from last data point
+        const last = glideslope["glideslope_series"][glideslope["glideslope_series"].length - 1];
+        glideslope["underspending_pct"] = last[1] / budgeted_amount;
+
+        res.json(glideslope);
+    } catch (error) {
+        console.error("Error in /glideslope/:identifier/group/:group_uuid endpoint:", error);
+        res.status(500).json({ error: "Failed to fetch group glideslope data" });
+    }
 });
 
 app.get("/accounts", async (req, res) => {
@@ -313,6 +429,25 @@ app.get("/accounts", async (req, res) => {
     } catch (error) {
         console.error("Error in /accounts endpoint:", error);
         res.status(500).json({ error: "Failed to fetch accounts data" });
+    }
+});
+
+app.get("/groups", async (req, res) => {
+    try {
+        await ensureApiInitialized();
+        const cgs = await api.getCategoryGroups();
+        const groups = cgs.map(cg => {
+            return {
+                "id": cg.id,
+                "name": cg.name,
+                "is_income": cg.is_income,
+                "category_uuids": cg.categories.map(c => c.id)
+            };
+        });
+        res.json(groups);
+    } catch (error) {
+        console.error("Error in /groups endpoint:", error);
+        res.status(500).json({ error: "Failed to fetch group data" });
     }
 });
 
@@ -452,6 +587,71 @@ app.get("/income-statement", async (req, res) => {
     } catch (error) {
         console.error("Error in /income-statement endpoint:", error);
         res.status(500).json({ error: "Failed to fetch income statement data" });
+    }
+});
+
+app.get("/cashflow/:identifier/by_group/:group_uuid", async (req, res) => {
+    try {
+        const identifier = req.params.identifier;
+        const group_uuid = req.params.group_uuid;
+        await ensureApiInitialized();
+        const [year, month] = identifier.split("-").map(x => +x);
+        const accounts = await api.getAccounts();
+        const budget_month = await api.getBudgetMonth(identifier);
+        const budget_groups = budget_month.categoryGroups;
+        const group = budget_groups.find(g => g.id === group_uuid);
+        if (!group) {
+            res.status(404).json({ error: "Group not found" });
+            return;
+        }
+
+        // recommended group test: "5200 - Food and Dining"
+        const bom = new Date(year, month - 1, 1);
+        const eom = new Date(year, month, 0);
+        let transactions = [];
+
+        // we must aggreegate a list of all categories in the target group
+        const groups = await api.getCategoryGroups();
+        const group_uuids = groups.map(g => g.id);
+        const i = group_uuids.indexOf(group_uuid);
+        if (i == -1) {
+            res.status(404).json({ error: "Group not found" });
+            return;
+        }
+        const category_uuids = group.categories.map(c => c.id);
+
+        // now we must iterate over all transactions, which must be done on an account-by-account basis
+        for (let i = 0; i < accounts.length; i += 1) {
+            const account_transactions = await api.getTransactions(
+                accounts[i].id,
+                bom,
+                eom
+            );
+            for (let j = 0; j < account_transactions.length; j += 1) {
+                const t = account_transactions[j];
+                if (category_uuids.indexOf(t.category) < 0) { continue; }
+                const k = category_uuids.indexOf(t.category);
+                const category = group.categories[k];
+                if (!t.hasOwnProperty("amount")) { continue; }
+                transactions.push({
+                    "uuid": t.id ? t.id : null,
+                    "account": t.account,
+                    "date": t.date,
+                    "amount": t.amount * 1e-2,
+                    "payee_uuid": t.payee,
+                    "payee_name": t.payee_name,
+                    "imported_payee": t.imported_payee,
+                    "category_uuid": t.category,
+                    "category_name": category.name,
+                    "is_income_category": category.is_income
+                });
+            }
+        }
+        transactions.sort((a, b) => a.date.valueOf() - b.date.valueOf());
+        res.json(transactions);
+    } catch (error) {
+        console.error("Error in /cashflow/:identifier/by_group endpoint:", error);
+        res.status(500).json({ error: "Failed to fetch cashflow by group data" });
     }
 });
 

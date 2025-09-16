@@ -92,10 +92,10 @@ module "mailman" {
 
 # module "n8n" {
 #   source               = "./n8n"
-#   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-#   HOST_NAME            = var.HOST_NAME
-#   STATE_PATH           = "${var.MOUNTED_VOLUME}/n8n"
-#   N8N_ENCRYPTION_KEY   = var.N8N_ENCRYPTION_KEY
+  # HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  # HOST_NAME            = var.HOST_NAME
+  # STATE_PATH           = "${var.MOUNTED_VOLUME}/n8n"
+  # N8N_ENCRYPTION_KEY   = var.N8N_ENCRYPTION_KEY
 # }
 
 module "node_exporter" {

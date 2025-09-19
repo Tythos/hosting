@@ -14,35 +14,82 @@ const PORT = process.env.PORT || 3001;
 // API connection state management
 let apiInitialized = false;
 let apiShutdownInProgress = false;
+let initializationPromise = null;
 
-// Helper function to ensure API is properly initialized
-async function ensureApiInitialized() {
-    if (apiInitialized && !apiShutdownInProgress) {
+// Request queue to handle concurrent requests
+const requestQueue = [];
+let processingQueue = false;
+
+// Queue processing function to serialize API operations
+async function processRequestQueue() {
+    if (processingQueue || requestQueue.length === 0) {
         return;
     }
 
-    try {
-        // Force shutdown if in progress
-        if (apiShutdownInProgress) {
-            await api.shutdown().catch(() => { });
-            apiShutdownInProgress = false;
+    processingQueue = true;
+    
+    while (requestQueue.length > 0) {
+        const { resolve, reject, operation } = requestQueue.shift();
+        try {
+            const result = await operation();
+            resolve(result);
+        } catch (error) {
+            reject(error);
         }
-
-        await api.init({
-            serverURL: "http://actual_container:5006",
-            password: ACTUAL_PASSWORD
-        });
-
-        await api.downloadBudget(ACTUAL_BUDGET, {
-            password: ACTUAL_PASSWORD
-        });
-
-        apiInitialized = true;
-    } catch (error) {
-        console.error("Failed to initialize API:", error);
-        apiInitialized = false;
-        throw error;
     }
+    
+    processingQueue = false;
+}
+
+// Helper function to queue API operations
+function queueApiOperation(operation) {
+    return new Promise((resolve, reject) => {
+        requestQueue.push({ resolve, reject, operation });
+        processRequestQueue();
+    });
+}
+
+// Helper function to ensure API is properly initialized
+async function ensureApiInitialized() {
+    if (apiInitialized && !apiShutdownInProgress && !initializationPromise) {
+        return;
+    }
+
+    // If initialization is already in progress, wait for it
+    if (initializationPromise) {
+        return await initializationPromise;
+    }
+
+    initializationPromise = (async () => {
+        try {
+            // Force shutdown if in progress
+            if (apiShutdownInProgress) {
+                await api.shutdown().catch(() => { });
+                apiShutdownInProgress = false;
+            }
+
+            if (!apiInitialized) {
+                await api.init({
+                    serverURL: "http://actual_container:5006",
+                    password: ACTUAL_PASSWORD
+                });
+
+                await api.downloadBudget(ACTUAL_BUDGET, {
+                    password: ACTUAL_PASSWORD
+                });
+
+                apiInitialized = true;
+            }
+        } catch (error) {
+            console.error("Failed to initialize API:", error);
+            apiInitialized = false;
+            throw error;
+        } finally {
+            initializationPromise = null;
+        }
+    })();
+
+    return await initializationPromise;
 }
 
 // Helper function to safely shutdown API
@@ -302,113 +349,131 @@ app.get("/glideslope/:identifier/group/:group_uuid", async (req, res) => {
     try {
         const identifier = req.params.identifier;
         const group_uuid = req.params.group_uuid;
-        await ensureApiInitialized();
-        const [year, month] = identifier.split("-").map(x => +x);
-        const accounts = await api.getAccounts();
-        const budget_month = await api.getBudgetMonth(identifier);
-        const budget_groups = budget_month.categoryGroups;
-        const group = budget_groups.find(g => g.id === group_uuid);
-        if (!group) {
-            res.status(404).json({ error: "Group not found" });
-            return;
-        }
-        if (group.is_income) {
-            res.status(400).json({ error: "Group is income (glideslope only supported for expenses)" });
-            return;
-        }
-
-        // Group requires aggregated calculation of budgeted amount
-        let budgeted_amount = 0;
-        for (let i = 0; i < group.categories.length; i += 1) {
-            budgeted_amount += group.categories[i].budgeted * 1e-2;
-        }
-
-        // recommended group test: "5200 - Food and Dining"
-        const bom = new Date(year, month - 1, 1);
-        const eom = new Date(year, month, 0);
-        let glideslope = {
-            "group_name": group.name,
-            "budgeted_amount": budgeted_amount,
-            "last_time_pct": 0.0, // facilitates date progression through month
-            "underspending_pct": 0.0, // will calculate once actual glideslope has been accumulated
-            "glideslope_series": [],
-        };
-        const budgeted_glideslope = [
-            [bom, budgeted_amount],
-            [eom, 0.0]
-        ];
-
-        // we must aggreegate a mapping of catgories to their group--or, a list of all catgories in the target group
-        const groups = await api.getCategoryGroups();
-        const group_uuids = groups.map(g => g.id);
-        const i = group_uuids.indexOf(group_uuid);
-        if (i == -1) {
-            res.status(404).json({ error: "Group not found" });
-            return;
-        }
-        const category_uuids = group.categories.map(c => c.id);
-
-        // now we must iterate over all transactions, which must be done on an account-by-account basis
-        let actual_glideslope = []; // unsorted [datetime, cumulative, change]
-        for (let i = 0; i < accounts.length; i += 1) {
-            const transactions = await api.getTransactions(
-                accounts[i].id,
-                bom,
-                eom
-            );
-            for (let j = 0; j < transactions.length; j += 1) {
-                const t = transactions[j];
-                if (category_uuids.indexOf(t.category) < 0) { continue; }
-                if (!t.hasOwnProperty("amount")) { continue; }
-                actual_glideslope.push([new Date(t.date), 0, 1e-2 * t.amount]);
+        
+        const result = await queueApiOperation(async () => {
+            await ensureApiInitialized();
+            const [year, month] = identifier.split("-").map(x => +x);
+            const accounts = await api.getAccounts();
+            const budget_month = await api.getBudgetMonth(identifier);
+            const budget_groups = budget_month.categoryGroups;
+            const group = budget_groups.find(g => g.id === group_uuid);
+            if (!group) {
+                throw new Error("Group not found");
             }
-        }
-        actual_glideslope.sort((a, b) => a[0].valueOf() - b[0].valueOf());
-
-        // now that it is chronological, extend "actual glideslope" with cumulative (after transaction) amount
-        let running_total = glideslope.budgeted_amount;
-        for (let i = 0; i < actual_glideslope.length; i += 1) {
-            running_total += actual_glideslope[i][2];
-            actual_glideslope[i][1] = running_total;
-        }
-        glideslope["last_time_pct"] = (actual_glideslope[actual_glideslope.length - 1][0].valueOf() - bom.valueOf()) / (eom.valueOf() - bom.valueOf());
-
-        // resample both series to a common grid
-        const n_days = parseInt((new Date(year, month, 0) - new Date(year, month - 1, 1)) * 1e-3 / 86400) + 1;
-        let i0 = 0; // index of first "actual" point after the current day
-        for (let d = 1; d <= n_days; d += 1) {
-            const pct = (d - 1) / (n_days - 1);
-
-            // budgeted glideslope is linear decrease
-            let budgeted = budgeted_glideslope[0][1] * (1 - pct);
-            let actual = budgeted;
-
-            // advance to first "actual" point after the current day
-            while (i0 < actual_glideslope.length && actual_glideslope[i0][0].valueOf() < new Date(year, month - 1, d + 1).valueOf()) {
-                i0 += 1;
+            if (group.is_income) {
+                throw new Error("Group is income (glideslope only supported for expenses)");
             }
-            if (d == 1) {
-                // if there were no transactions on the first day, use initial budget
-                if (i0 == 0) {
-                    actual = budgeted_glideslope[0][1];
-                } else {
-                    actual = actual_glideslope[i0 - 1][1];
+
+            // Group requires aggregated calculation of budgeted amount
+            let budgeted_amount = 0;
+            for (let i = 0; i < group.categories.length; i += 1) {
+                budgeted_amount += group.categories[i].budgeted * 1e-2;
+            }
+
+            // recommended group test: "5200 - Food and Dining"
+            const bom = new Date(year, month - 1, 1);
+            const eom = new Date(year, month, 0);
+            let glideslope = {
+                "group_name": group.name,
+                "budgeted_amount": budgeted_amount,
+                "last_time_pct": 0.0, // facilitates date progression through month
+                "underspending_pct": 0.0, // will calculate once actual glideslope has been accumulated
+                "glideslope_series": [],
+            };
+            const budgeted_glideslope = [
+                [bom, budgeted_amount],
+                [eom, 0.0]
+            ];
+
+            // we must aggreegate a mapping of catgories to their group--or, a list of all catgories in the target group
+            const groups = await api.getCategoryGroups();
+            const group_uuids = groups.map(g => g.id);
+            const i = group_uuids.indexOf(group_uuid);
+            if (i == -1) {
+                throw new Error("Group not found");
+            }
+            const category_uuids = group.categories.map(c => c.id);
+
+            // now we must iterate over all transactions, which must be done on an account-by-account basis
+            let actual_glideslope = []; // unsorted [datetime, cumulative, change]
+            for (let i = 0; i < accounts.length; i += 1) {
+                const transactions = await api.getTransactions(
+                    accounts[i].id,
+                    bom,
+                    eom
+                );
+                for (let j = 0; j < transactions.length; j += 1) {
+                    const t = transactions[j];
+                    if (category_uuids.indexOf(t.category) < 0) { continue; }
+                    if (!t.hasOwnProperty("amount")) { continue; }
+                    actual_glideslope.push([new Date(t.date), 0, 1e-2 * t.amount]);
                 }
-            } else {
-                // if there were no transactions on this day, use the most recent point
-                actual = actual_glideslope[i0 - 1][1];
             }
-            glideslope["glideslope_series"].push([new Date(year, month - 1, d), budgeted, actual]);
-        }
+            actual_glideslope.sort((a, b) => a[0].valueOf() - b[0].valueOf());
 
-        // finally, compute underspending percentage from last data point
-        const last = glideslope["glideslope_series"][glideslope["glideslope_series"].length - 1];
-        glideslope["underspending_pct"] = last[1] / budgeted_amount;
+            // now that it is chronological, extend "actual glideslope" with cumulative (after transaction) amount
+            let running_total = glideslope.budgeted_amount;
+            for (let i = 0; i < actual_glideslope.length; i += 1) {
+                running_total += actual_glideslope[i][2];
+                actual_glideslope[i][1] = running_total;
+            }
+            if (0 < actual_glideslope.length && 0 < actual_glideslope[actual_glideslope.length - 1].length) {
+                glideslope["last_time_pct"] = (actual_glideslope[actual_glideslope.length - 1][0].valueOf() - bom.valueOf()) / (eom.valueOf() - bom.valueOf());
+            } else {
+                glideslope["last_time_pct"] = 1.0;
+            }
 
-        res.json(glideslope);
+            // resample both series to a common grid
+            const n_days = parseInt((new Date(year, month, 0) - new Date(year, month - 1, 1)) * 1e-3 / 86400) + 1;
+            let i0 = 0; // index of first "actual" point after the current day
+            for (let d = 1; d <= n_days; d += 1) {
+                const pct = (d - 1) / (n_days - 1);
+
+                // budgeted glideslope is linear decrease
+                let budgeted = budgeted_glideslope[0][1] * (1 - pct);
+                let actual = budgeted;
+
+                // advance to first "actual" point after the current day
+                while (i0 < actual_glideslope.length && actual_glideslope[i0][0].valueOf() < new Date(year, month - 1, d + 1).valueOf()) {
+                    i0 += 1;
+                }
+                if (d == 1) {
+                    // if there were no transactions on the first day, use initial budget
+                    if (i0 == 0) {
+                        actual = budgeted_glideslope[0][1];
+                    } else {
+                        actual = actual_glideslope[i0 - 1][1];
+                    }
+                } else {
+                    // if there were no transactions on this day, use the most recent point
+                    if (i0 == 0) {
+                        actual = budgeted_amount;
+                    } else if (0 < actual_glideslope.length && i0 - 1 < actual_glideslope.length && 0 < actual_glideslope[i0 - 1].length) {
+                        actual = actual_glideslope[i0 - 1][1];
+                    } else {
+                        actual = budgeted_amount;
+                    }
+                }
+                glideslope["glideslope_series"].push([new Date(year, month - 1, d), budgeted, actual]);
+            }
+
+            // finally, compute underspending percentage from last data point
+            const last = glideslope["glideslope_series"][glideslope["glideslope_series"].length - 1];
+            glideslope["underspending_pct"] = last[1] / budgeted_amount;
+            
+            return glideslope;
+        });
+
+        res.json(result);
     } catch (error) {
         console.error("Error in /glideslope/:identifier/group/:group_uuid endpoint:", error);
-        res.status(500).json({ error: "Failed to fetch group glideslope data" });
+        if (error.message === "Group not found") {
+            res.status(404).json({ error: error.message });
+        } else if (error.message === "Group is income (glideslope only supported for expenses)") {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: "Failed to fetch group glideslope data" });
+        }
     }
 });
 
@@ -833,5 +898,20 @@ process.on('SIGINT', async () => {
     server.close(() => {
         console.log('Server closed');
         process.exit(0);
+    });
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Promise Rejection at:', promise, 'reason:', reason);
+    // Don't exit the process, just log the error
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    // For uncaught exceptions, we should exit gracefully
+    safeApiShutdown().finally(() => {
+        process.exit(1);
     });
 });

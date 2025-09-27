@@ -110,6 +110,7 @@ async function safeApiShutdown() {
 }
 
 /* --- these are private / non-exported functions and assume the api has been initialized but not yet shut down--- */
+
 const getAllAccounts = async () => {
     // await ensureApiInitialized();
     const accounts = await api.getAccounts();
@@ -138,6 +139,8 @@ const getAllCategories = async () => {
 
 app.use(cors());
 app.use(express.json());
+
+/* --- public endpoints --- */
 
 app.get("/health", (req, res) => {
     res.json({ status: "healthy", timestamp: new Date().toISOString() });
@@ -248,97 +251,117 @@ app.get("/glideslope/:identifier/category/:category_uuid", async (req, res) => {
     try {
         const identifier = req.params.identifier;
         const category_uuid = req.params.category_uuid;
-        await ensureApiInitialized();
-        const [year, month] = identifier.split("-").map(x => +x);
-        const accounts = await api.getAccounts();
-        const budget_month = await api.getBudgetMonth(identifier);
-        const categories = budget_month.categoryGroups.flatMap(cg => cg.categories);
-        const category = categories.find(c => c.id === category_uuid);
-        if (!category) {
-            res.status(404).json({ error: "Category not found" });
-            return;
-        }
-        if (category.is_income) {
-            res.status(400).json({ error: "Category is income (glideslope only supported for expenses)" });
-            return;
-        }
-
-        // recommended category test: "5210 - Groceries"
-        const bom = new Date(year, month - 1, 1);
-        const eom = new Date(year, month, 0);
-        let glideslope = {
-            "category_name": category.name,
-            "budgeted_amount": category.budgeted * 1e-2,
-            "last_time_pct": 0.0, // facilitates date progression through month
-            "underspending_pct": 0.0, // will calculate once actual glideslope has been accumulated
-            "glideslope_series": [],
-        };
-        const budgeted_glideslope = [
-            [bom, category.budgeted * 1e-2],
-            [eom, 0.0]
-        ];
-
-        // now we must iterate over all transactions, which must be done on an account-by-account basis
-        let actual_glideslope = []; // unsorted [datetime, cumulative, change]
-        for (let i = 0; i < accounts.length; i += 1) {
-            const transactions = await api.getTransactions(
-                accounts[i].id,
-                bom,
-                eom
-            );
-            for (let j = 0; j < transactions.length; j += 1) {
-                const t = transactions[j];
-                if (t.category !== category_uuid) { continue; }
-                if (!t.hasOwnProperty("amount")) { continue; }
-                actual_glideslope.push([new Date(t.date), 0, 1e-2 * t.amount]);
+        
+        const result = await queueApiOperation(async () => {
+            await ensureApiInitialized();
+            const [year, month] = identifier.split("-").map(x => +x);
+            const accounts = await api.getAccounts();
+            const budget_month = await api.getBudgetMonth(identifier);
+            const categories = budget_month.categoryGroups.flatMap(cg => cg.categories);
+            const category = categories.find(c => c.id === category_uuid);
+            if (!category) {
+                throw new Error("Category not found");
             }
-        }
-        actual_glideslope.sort((a, b) => a[0].valueOf() - b[0].valueOf());
-
-        // now that it is chronological, extend "actual glideslope" with cumulative (after transaction) amount
-        let running_total = glideslope.budgeted_amount;
-        for (let i = 0; i < actual_glideslope.length; i += 1) {
-            running_total += actual_glideslope[i][2];
-            actual_glideslope[i][1] = running_total;
-        }
-        glideslope["last_time_pct"] = (actual_glideslope[actual_glideslope.length - 1][0].valueOf() - bom.valueOf()) / (eom.valueOf() - bom.valueOf());
-
-        // resample both series to a common grid
-        const n_days = parseInt((new Date(year, month, 0) - new Date(year, month - 1, 1)) * 1e-3 / 86400) + 1;
-        let i0 = 0; // index of first "actual" point after the current day
-        for (let d = 1; d <= n_days; d += 1) {
-            const pct = (d - 1) / (n_days - 1);
-
-            // budgeted glideslope is linear decrease
-            let budgeted = budgeted_glideslope[0][1] * (1 - pct);
-            let actual = budgeted;
-
-            // advance to first "actual" point after the current day
-            while (i0 < actual_glideslope.length && actual_glideslope[i0][0].valueOf() < new Date(year, month - 1, d + 1).valueOf()) {
-                i0 += 1;
+            if (category.is_income) {
+                throw new Error("Category is income (glideslope only supported for expenses)");
             }
-            if (d == 1) {
-                // if there were no transactions on the first day, use initial budget
-                if (i0 == 0) {
-                    actual = budgeted_glideslope[0][1];
-                } else {
-                    actual = actual_glideslope[i0 - 1][1];
+
+            // recommended category test: "5210 - Groceries"
+            const bom = new Date(year, month - 1, 1);
+            const eom = new Date(year, month, 0);
+            const budgeted_amount = category.budgeted * 1e-2;
+            let glideslope = {
+                "category_name": category.name,
+                "budgeted_amount": budgeted_amount,
+                "last_time_pct": 0.0, // facilitates date progression through month
+                "underspending_pct": 0.0, // will calculate once actual glideslope has been accumulated
+                "glideslope_series": [],
+            };
+            const budgeted_glideslope = [
+                [bom, budgeted_amount],
+                [eom, 0.0]
+            ];
+
+            // now we must iterate over all transactions, which must be done on an account-by-account basis
+            let actual_glideslope = []; // unsorted [datetime, cumulative, change]
+            for (let i = 0; i < accounts.length; i += 1) {
+                const transactions = await api.getTransactions(
+                    accounts[i].id,
+                    bom,
+                    eom
+                );
+                for (let j = 0; j < transactions.length; j += 1) {
+                    const t = transactions[j];
+                    if (t.category !== category_uuid) { continue; }
+                    if (!t.hasOwnProperty("amount")) { continue; }
+                    actual_glideslope.push([new Date(t.date), 0, 1e-2 * t.amount]);
                 }
-            } else {
-                // if there were no transactions on this day, use the most recent point
-                actual = actual_glideslope[i0 - 1][1];
             }
-            glideslope["glideslope_series"].push([new Date(year, month - 1, d), budgeted, actual]);
-        }
+            actual_glideslope.sort((a, b) => a[0].valueOf() - b[0].valueOf());
 
-        // finally, compute underspending percentage from last data point
-        const last = glideslope["glideslope_series"][glideslope["glideslope_series"].length - 1];
-        glideslope["underspending_pct"] = last[1] / budgeted_amount;
+            // now that it is chronological, extend "actual glideslope" with cumulative (after transaction) amount
+            let running_total = glideslope.budgeted_amount;
+            for (let i = 0; i < actual_glideslope.length; i += 1) {
+                running_total += actual_glideslope[i][2];
+                actual_glideslope[i][1] = running_total;
+            }
+            if (0 < actual_glideslope.length && 0 < actual_glideslope[actual_glideslope.length - 1].length) {
+                glideslope["last_time_pct"] = (actual_glideslope[actual_glideslope.length - 1][0].valueOf() - bom.valueOf()) / (eom.valueOf() - bom.valueOf());
+            } else {
+                glideslope["last_time_pct"] = 1.0;
+            }
 
-        res.json(glideslope);
+            // resample both series to a common grid
+            const n_days = parseInt((new Date(year, month, 0) - new Date(year, month - 1, 1)) * 1e-3 / 86400) + 1;
+            let i0 = 0; // index of first "actual" point after the current day
+            for (let d = 1; d <= n_days; d += 1) {
+                const pct = (d - 1) / (n_days - 1);
+
+                // budgeted glideslope is linear decrease
+                let budgeted = budgeted_glideslope[0][1] * (1 - pct);
+                let actual = budgeted;
+
+                // advance to first "actual" point after the current day
+                while (i0 < actual_glideslope.length && actual_glideslope[i0][0].valueOf() < new Date(year, month - 1, d + 1).valueOf()) {
+                    i0 += 1;
+                }
+                if (d == 1) {
+                    // if there were no transactions on the first day, use initial budget
+                    if (i0 == 0) {
+                        actual = budgeted_glideslope[0][1];
+                    } else {
+                        actual = actual_glideslope[i0 - 1][1];
+                    }
+                } else {
+                    // if there were no transactions on this day, use the most recent point
+                    if (i0 == 0) {
+                        actual = budgeted_amount;
+                    } else if (0 < actual_glideslope.length && i0 - 1 < actual_glideslope.length && 0 < actual_glideslope[i0 - 1].length) {
+                        actual = actual_glideslope[i0 - 1][1];
+                    } else {
+                        actual = budgeted_amount;
+                    }
+                }
+                glideslope["glideslope_series"].push([new Date(year, month - 1, d), budgeted, actual]);
+            }
+
+            // finally, compute underspending percentage from last data point
+            const last = glideslope["glideslope_series"][glideslope["glideslope_series"].length - 1];
+            glideslope["underspending_pct"] = last[1] / budgeted_amount;
+            
+            return glideslope;
+        });
+
+        res.json(result);
     } catch (error) {
-        console.error("Error in /months/:identifier/budget/:category endpoint:", error);
-        res.status(500).json({ error: "Failed to fetch category budget details data" });
+        console.error("Error in /glideslope/:identifier/category/:category_uuid endpoint:", error);
+        if (error.message === "Category not found") {
+            res.status(404).json({ error: error.message });
+        } else if (error.message === "Category is income (glideslope only supported for expenses)") {
+            res.status(400).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: "Failed to fetch category glideslope data" });
+        }
     }
 });
 

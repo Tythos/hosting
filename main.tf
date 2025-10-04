@@ -90,12 +90,20 @@ module "mailman" {
   AUTOMATION_EMAIL_USER = var.AUTOMATION_EMAIL_USER
 }
 
+module "minecraft" {
+  source               = "./minecraft"
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/minecraft"
+  HOST_NAME            = var.HOST_NAME
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  LOKI_URL             = module.loki.LOKI_URL
+}
+
 # module "n8n" {
 #   source               = "./n8n"
-  # HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  # HOST_NAME            = var.HOST_NAME
-  # STATE_PATH           = "${var.MOUNTED_VOLUME}/n8n"
-  # N8N_ENCRYPTION_KEY   = var.N8N_ENCRYPTION_KEY
+# HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+# HOST_NAME            = var.HOST_NAME
+# STATE_PATH           = "${var.MOUNTED_VOLUME}/n8n"
+# N8N_ENCRYPTION_KEY   = var.N8N_ENCRYPTION_KEY
 # }
 
 module "node_exporter" {

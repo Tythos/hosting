@@ -183,27 +183,3 @@ module "whoami" {
   HOST_NAME            = var.HOST_NAME
   LOKI_URL             = module.loki.LOKI_URL
 }
-
-module "authentik" {
-  source               = "./authentik"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  HOST_NAME            = var.HOST_NAME
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/authentik"
-  LOKI_URL             = module.loki.LOKI_URL
-  POSTGRES_HOST        = module.postgres.POSTGRES_HOST
-  POSTGRES_PASSWORD    = module.postgres.POSTGRES_PASSWORD
-  REDIS_HOST           = module.redis.REDIS_HOST
-  ADMIN_PASSWORD       = random_password.admin_password.result
-  ACME_EMAIL           = var.ACME_EMAIL
-}
-
-module "forgejo" {
-  source               = "./forgejo"
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  HOST_NAME            = var.HOST_NAME
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/forgejo"
-  LOKI_URL             = module.loki.LOKI_URL
-  POSTGRES_HOST        = module.postgres.POSTGRES_HOST
-  POSTGRES_PASSWORD    = module.postgres.POSTGRES_PASSWORD
-  ADMIN_PASSWORD       = random_password.admin_password.result
-}

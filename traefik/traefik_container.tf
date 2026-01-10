@@ -7,6 +7,7 @@ resource "docker_container" "traefik_container" {
     "--providers.docker",
     "--entrypoints.web.address=:80",
     "--entrypoints.websecure.address=:443",
+    "--entrypoints.ssh.address=:2222",
     "--entrypoints.minecraft.address=:25565",
     "--log.level=INFO",
     "--certificatesresolvers.letsencrypt.acme.email=${var.ACME_EMAIL}",
@@ -47,6 +48,11 @@ resource "docker_container" "traefik_container" {
   ports {
     internal = 25565
     external = 25565
+  }
+
+  ports {
+    internal = 2222
+    external = 2222
   }
 
   volumes {

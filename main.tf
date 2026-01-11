@@ -2,8 +2,10 @@ module "adminer" {
   source               = "./adminer"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
-  POSTGRES_HOST        = module.postgres.POSTGRES_HOST
-  POSTGRES_PASSWORD    = module.postgres.POSTGRES_PASSWORD
+  POSTGRES_HOST        = module.postgres.CONSUMER_CREDENTIALS["adminer"].host
+  POSTGRES_USER        = module.postgres.CONSUMER_CREDENTIALS["adminer"].username
+  POSTGRES_PASSWORD    = module.postgres.CONSUMER_CREDENTIALS["adminer"].password
+  POSTGRES_DATABASE    = module.postgres.CONSUMER_CREDENTIALS["adminer"].database
 }
 
 module "aero" {
@@ -11,6 +13,17 @@ module "aero" {
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   HOST_NAME            = var.HOST_NAME
   STATE_PATH           = "${var.MOUNTED_VOLUME}/aero"
+}
+
+module "auth" {
+  source               = "./auth"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/auth"
+  POSTGRES_HOST        = module.postgres.CONSUMER_CREDENTIALS["auth"].host
+  POSTGRES_USER        = module.postgres.CONSUMER_CREDENTIALS["auth"].username
+  POSTGRES_PASSWORD    = module.postgres.CONSUMER_CREDENTIALS["auth"].password
+  POSTGRES_DATABASE    = module.postgres.CONSUMER_CREDENTIALS["auth"].database
 }
 
 module "cc" {
@@ -102,6 +115,7 @@ module "postgres" {
   HOST_NAME            = var.HOST_NAME
   STATE_PATH           = "${var.MOUNTED_VOLUME}/postgres"
   LOKI_URL             = module.loki.LOKI_URL
+  CONSUMERS            = var.POSTGRES_CONSUMERS
 }
 
 module "prometheus" {

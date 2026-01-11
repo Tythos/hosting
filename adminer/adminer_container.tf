@@ -4,8 +4,9 @@ resource "docker_container" "adminer_container" {
 
   env = [
     "ADMINER_DEFAULT_SERVER=${var.POSTGRES_HOST}",
-    "ADMINER_DEFAULT_USER=postgres",
-    "ADMINER_DEFAULT_PASSWORD=${var.POSTGRES_PASSWORD}"
+    "ADMINER_DEFAULT_USER=${var.POSTGRES_USER}",
+    "ADMINER_DEFAULT_PASSWORD=${var.POSTGRES_PASSWORD}",
+    "ADMINER_DEFAULT_DB=${var.POSTGRES_DATABASE}"
   ]
 
   networks_advanced {

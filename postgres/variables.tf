@@ -17,3 +17,12 @@ variable "LOKI_URL" {
   type        = string
   description = "URL of the Loki instance to send logs to"
 }
+
+variable "CONSUMERS" {
+  type = map(object({
+    username = string
+    database = optional(string)
+  }))
+  description = "Map of consumer modules that need PostgreSQL credentials"
+  default     = {}
+}

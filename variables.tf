@@ -63,3 +63,20 @@ variable "ACTUAL_BUDGET" {
   type        = string
   description = "The UUID of the Actual budget to use"
 }
+
+variable "POSTGRES_CONSUMERS" {
+  type = map(object({
+    username = string
+    database = optional(string)
+  }))
+  description = "Map of modules that need PostgreSQL credentials. Key is module name, username is the PG user, database defaults to username if not specified."
+  default = {
+    adminer = {
+      username = "adminer_user"
+    }
+    auth = {
+      username = "authentik"
+      database = "authentik"
+    }
+  }
+}

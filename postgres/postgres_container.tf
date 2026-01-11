@@ -26,4 +26,12 @@ resource "docker_container" "postgres_container" {
     host_path      = var.STATE_PATH
     container_path = "/var/lib/postgresql/data"
   }
+
+  dynamic "volumes" {
+    for_each = length(var.CONSUMERS) > 0 ? [1] : []
+    content {
+      host_path      = abspath(local_file.init_consumers[0].filename)
+      container_path = "/docker-entrypoint-initdb.d/init-consumers.sql"
+    }
+  }
 }

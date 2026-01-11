@@ -8,6 +8,11 @@ variable "HOSTING_NETWORK_NAME" {
   description = "Name of internal Docker network used for routing"
 }
 
+variable "STATE_PATH" {
+  type        = string
+  description = "Path to hosted PHP contents"
+}
+
 variable "POSTGRES_HOST" {
   type        = string
   description = "Host of the PostgreSQL server"
@@ -21,10 +26,10 @@ variable "POSTGRES_USER" {
 variable "POSTGRES_PASSWORD" {
   type        = string
   description = "Password of the PostgreSQL server"
+  sensitive   = true
 }
 
 variable "POSTGRES_DATABASE" {
   type        = string
-  description = "Default database for the PostgreSQL connection"
-  default     = ""
+  description = "Database name for authentik"
 }

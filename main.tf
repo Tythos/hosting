@@ -17,6 +17,15 @@ module "aero" {
   STATE_PATH           = "${var.MOUNTED_VOLUME}/aero"
 }
 
+module "auth" {
+  source               = "./auth"
+  HOST_NAME            = var.HOST_NAME
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  POSTGRES_HOSTNAME    = module.postgres.POSTGRES_HOSTNAME
+  POSTGRES_PASSWORD    = module._credentials.AUTH_DB_PASSWORD
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/auth"
+}
+
 module "cc" {
   source               = "./cc"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

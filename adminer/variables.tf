@@ -8,23 +8,12 @@ variable "HOSTING_NETWORK_NAME" {
   description = "Name of internal Docker network used for routing"
 }
 
-variable "POSTGRES_HOST" {
+variable "POSTGRES_HOSTNAME" {
   type        = string
-  description = "Host of the PostgreSQL server"
-}
-
-variable "POSTGRES_USER" {
-  type        = string
-  description = "Username for the PostgreSQL server"
+  description = "Name of the PostgreSQL server"
 }
 
 variable "POSTGRES_PASSWORD" {
   type        = string
   description = "Password of the PostgreSQL server"
-}
-
-variable "POSTGRES_DATABASE" {
-  type        = string
-  description = "Default database for the PostgreSQL connection"
-  default     = ""
 }

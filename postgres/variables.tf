@@ -19,10 +19,6 @@ variable "LOKI_URL" {
 }
 
 variable "CONSUMERS" {
-  type = map(object({
-    username = string
-    database = optional(string)
-  }))
-  description = "Map of consumer modules that need PostgreSQL credentials"
-  default     = {}
+  type    = map(string)
+  default = {}
 }

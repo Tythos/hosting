@@ -1,5 +1,5 @@
 output "ADMIN_PASSWORD" {
-  value     = random_password.admin_password.result
+  value     = module._credentials.ADMIN_PASSWORD
   sensitive = true
 }
 

@@ -3,10 +3,10 @@ resource "docker_container" "adminer_container" {
   name  = "adminer_container"
 
   env = [
-    "ADMINER_DEFAULT_SERVER=${var.POSTGRES_HOST}",
-    "ADMINER_DEFAULT_USER=${var.POSTGRES_USER}",
+    "ADMINER_DEFAULT_SERVER=${var.POSTGRES_HOSTNAME}",
+    "ADMINER_DEFAULT_USER=adminer",
     "ADMINER_DEFAULT_PASSWORD=${var.POSTGRES_PASSWORD}",
-    "ADMINER_DEFAULT_DB=${var.POSTGRES_DATABASE}"
+    "ADMINER_DEFAULT_DB=adminer"
   ]
 
   networks_advanced {

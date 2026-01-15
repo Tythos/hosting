@@ -1,19 +1,9 @@
-resource "local_file" "forgejo_config" {
-  filename        = "${module.path}/app.ini"
-  file_permission = "0644"
-
-  content = templatefile("${path.module}/forgejo-app.ini.tftpl", {
-    db_type              = "postgres"
-    db_host              = "forgejo-db:5432"
-    disable_registration = "true"
-    require_signin       = "false"
-  })
-}
-
 resource "docker_container" "forgejo_container" {
   image = docker_image.forgejo_image.image_id
   name  = "forgejo_container"
-  depends_on = [local_file.forgejo_config]
+  env = [
+    "GITEA__server__SSH_PORT=2222"
+  ]
 
   networks_advanced {
     name = var.HOSTING_NETWORK_NAME
@@ -21,7 +11,6 @@ resource "docker_container" "forgejo_container" {
 
   ports {
     internal = 22
-    external = 2222
     protocol = "tcp"
   }
 
@@ -78,11 +67,5 @@ resource "docker_container" "forgejo_container" {
   volumes {
     container_path = "/data"
     host_path      = "${var.STATE_PATH}/forgejo"
-  }
-
-  volumes {
-    host_path      = local_file.forgejo_config.filename
-    container_path = "/data/gitea/conf/app.ini"
-    read_only      = true
   }
 }

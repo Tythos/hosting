@@ -11,3 +11,19 @@ output "POSTGRES_PASSWORD" {
   value     = module.postgres.POSTGRES_PASSWORD
   sensitive = true
 }
+
+output "FORGEJO_OAUTH_CLIENT_ID" {
+  value       = module.code.FORGEJO_OAUTH_CLIENT_ID
+  description = "OAuth2 Client ID for Forgejo in Authentik"
+}
+
+output "FORGEJO_OAUTH_CLIENT_SECRET" {
+  value       = module.code.FORGEJO_OAUTH_CLIENT_SECRET
+  description = "OAuth2 Client Secret for Forgejo in Authentik"
+  sensitive   = true
+}
+
+output "FORGEJO_REDIRECT_URI" {
+  value       = module.code.FORGEJO_REDIRECT_URI
+  description = "OAuth2 Redirect URI for Forgejo"
+}

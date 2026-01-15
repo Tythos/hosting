@@ -50,6 +50,32 @@ To define a new service:
 
 Grafana is the primary presentation target for dashboarding each observability signal.
 
+## Authentication & Authorization
+
+### Authentik & Forgejo OAuth2/OIDC Integration
+
+- [x] Authentik instance configured as identity provider (`auth.${HOST_NAME}`)
+
+- [x] Forgejo configured to support OAuth2/OIDC authentication
+
+- [x] OAuth2 client credentials managed via Terraform (client secret auto-generated)
+
+- [x] Environment variables configured for OpenID Connect auto-registration
+
+**Setup Instructions**: See [AUTHENTIK_FORGEJO_SETUP.md](./AUTHENTIK_FORGEJO_SETUP.md) for detailed manual configuration steps for both Authentik (provider) and Forgejo (client).
+
+**Retrieve OAuth2 Credentials**:
+```bash
+terraform output -raw module.code.FORGEJO_OAUTH_CLIENT_SECRET
+terraform output module.code.FORGEJO_REDIRECT_URI
+```
+
+**Key Features**:
+- Single Sign-On (SSO) for Forgejo via Authentik
+- Auto-registration of users on first login
+- Support for both local and OAuth2 authentication methods
+- Secure client secret generation via Terraform
+
 ## TODO
 
 - [x] Routing (and load balancing)

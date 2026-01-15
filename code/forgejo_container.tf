@@ -2,7 +2,13 @@ resource "docker_container" "forgejo_container" {
   image = docker_image.forgejo_image.image_id
   name  = "forgejo_container"
   env = [
-    "GITEA__server__SSH_PORT=2222"
+    "GITEA__server__SSH_PORT=2222",
+    "GITEA__server__ROOT_URL=https://code.${var.HOST_NAME}/",
+    "GITEA__service__DISABLE_REGISTRATION=false",
+    "GITEA__service__ALLOW_ONLY_EXTERNAL_REGISTRATION=false",
+    "GITEA__openid__ENABLE_OPENID_SIGNIN=true",
+    "GITEA__openid__ENABLE_OPENID_SIGNUP=true",
+    "GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION=true",
   ]
 
   networks_advanced {

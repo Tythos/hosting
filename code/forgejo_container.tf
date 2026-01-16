@@ -1,6 +1,31 @@
+resource "local_file" "forgejo_config" {
+  filename        = "${path.module}/app.ini"
+  file_permission = "0666"
+  content = templatefile("${path.module}/app.ini.tftpl", {
+    domain                  = "code.${var.HOST_NAME}"
+    secret_key              = random_password.forgejoioauthclient_randompassword.result
+    internal_token          = random_password.forgejointernaltoken_randompassword.result
+    authentik_client_id     = var.FORGEJO_OAUTH_CLIENT_ID
+    authentik_client_secret = var.FORGEJO_OAUTH_CLIENT_SECRET
+    authentik_domain        = "auth.${var.HOST_NAME}"
+  })
+}
+
+resource "null_resource" "forgejo_config_perms" {
+  depends_on = [local_file.forgejo_config]
+  triggers = {
+    config = local_file.forgejo_config.content_md5
+  }
+
+  provisioner "local-exec" {
+    command = "chown 1000:1000 ${abspath(local_file.forgejo_config.filename)}"
+  }
+}
+
 resource "docker_container" "forgejo_container" {
-  image = docker_image.forgejo_image.image_id
-  name  = "forgejo_container"
+  image      = docker_image.forgejo_image.image_id
+  name       = "forgejo_container"
+  depends_on = [local_file.forgejo_config]
   env = [
     "GITEA__server__SSH_PORT=2222",
     "GITEA__server__ROOT_URL=https://code.${var.HOST_NAME}/",
@@ -73,5 +98,10 @@ resource "docker_container" "forgejo_container" {
   volumes {
     container_path = "/data"
     host_path      = "${var.STATE_PATH}/forgejo"
+  }
+
+  volumes {
+    container_path = "/data/gitea/conf/app.ini"
+    host_path      = abspath(local_file.forgejo_config.filename)
   }
 }

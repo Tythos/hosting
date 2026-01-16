@@ -1,0 +1,37 @@
+[server]
+DOMAIN = ${domain}
+SSH_DOMAIN = ${domain}
+ROOT_URL = https://${domain}/
+SSH_PORT = 2222
+SSH_LISTEN_PORT = 22
+HTTP_PORT = 3000
+
+[security]
+INSTALL_LOCK = true
+SECRET_KEY = ${secret_key}
+INTERNAL_TOKEN = ${internal_token}
+
+[oauth2_client]
+ENABLE_AUTO_REGISTRATION = true
+ACCOUNT_LINKING = login
+UPDATE_AVATAR = true
+
+[service]
+DISABLE_REGISTRATION = true
+REQUIRE_SIGNIN_VIEW = false
+
+[openid]
+ENABLE_OPENID_SIGNIN = false
+ENABLE_OPENID_SIGNUP = false
+
+[oauth2.authentik]
+PROVIDER = openidConnect
+CLIENT_ID = ${authentik_client_id}
+CLIENT_SECRET = ${authentik_client_secret}
+AUTO_DISCOVER_URL = https://${authentik_domain}/application/o/forgejo/.well-known/openid-configuration
+SCOPES = openid email profile
+
+[database]
+DB_TYPE = sqlite3
+PATH = /data/gitea/forgejo.db
+LOG_SQL = false

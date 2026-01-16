@@ -1,4 +1,4 @@
-resource "random_password" "forgejo_oauth_client_secret" {
+resource "random_password" "forgejoioauthclient_randompassword" {
   length  = 64
   upper   = true
   lower   = true

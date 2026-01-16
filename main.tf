@@ -34,10 +34,12 @@ module "cc" {
 }
 
 module "code" {
-  source               = "./code"
-  HOST_NAME            = var.HOST_NAME
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/code"
+  source                      = "./code"
+  HOST_NAME                   = var.HOST_NAME
+  HOSTING_NETWORK_NAME        = docker_network.hosting_network.name
+  STATE_PATH                  = "${var.MOUNTED_VOLUME}/code"
+  FORGEJO_OAUTH_CLIENT_ID     = var.FORGEJO_OAUTH_CLIENT_ID
+  FORGEJO_OAUTH_CLIENT_SECRET = var.FORGEJO_OAUTH_CLIENT_SECRET
 }
 
 module "easton" {

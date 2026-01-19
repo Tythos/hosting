@@ -3,12 +3,50 @@ resource "local_file" "forgejo_config" {
   file_permission = "0666"
   content = templatefile("${path.module}/app.ini.tftpl", {
     domain                  = "code.${var.HOST_NAME}"
-    secret_key              = random_password.forgejoioauthclient_randompassword.result
+    secret_key              = random_password.forgejosecretkey_randompassword.result
     internal_token          = random_password.forgejointernaltoken_randompassword.result
     authentik_client_id     = var.FORGEJO_OAUTH_CLIENT_ID
     authentik_client_secret = var.FORGEJO_OAUTH_CLIENT_SECRET
     authentik_domain        = "auth.${var.HOST_NAME}"
   })
+}
+
+resource "null_resource" "forgejo_auth_source" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Wait for Forgejo
+      until docker exec forgejo_container forgejo --version 2>/dev/null; do
+        sleep 2
+      done
+      sleep 5
+      
+      # Check if already exists
+      if ! docker exec -u git forgejo_container forgejo admin auth list 2>/dev/null | grep -q authentik; then
+        docker exec -u git forgejo_container forgejo admin auth add-oauth \
+          --name authentik \
+          --provider openidConnect \
+          --key "${var.FORGEJO_OAUTH_CLIENT_ID}" \
+          --secret "${var.FORGEJO_OAUTH_CLIENT_SECRET}" \
+          --auto-discover-url "https://auth.${var.HOST_NAME}/application/o/forgejo/.well-known/openid-configuration" \
+          --scopes "openid email profile" \
+          --skip-local-2fa
+      else
+        echo "Auth source already exists, skipping"
+      fi
+    EOT
+  }
+
+  depends_on = [
+    docker_container.forgejo_container
+  ]
+  
+  triggers = {
+    # Re-run if credentials change
+    client_id = var.FORGEJO_OAUTH_CLIENT_ID
+    client_secret = var.FORGEJO_OAUTH_CLIENT_SECRET
+    # But don't re-run every time
+    config_version = "v1"
+  }
 }
 
 resource "null_resource" "forgejo_config_perms" {
@@ -26,15 +64,6 @@ resource "docker_container" "forgejo_container" {
   image      = docker_image.forgejo_image.image_id
   name       = "forgejo_container"
   depends_on = [local_file.forgejo_config]
-  env = [
-    "GITEA__server__SSH_PORT=2222",
-    "GITEA__server__ROOT_URL=https://code.${var.HOST_NAME}/",
-    "GITEA__service__DISABLE_REGISTRATION=false",
-    "GITEA__service__ALLOW_ONLY_EXTERNAL_REGISTRATION=false",
-    "GITEA__openid__ENABLE_OPENID_SIGNIN=true",
-    "GITEA__openid__ENABLE_OPENID_SIGNUP=true",
-    "GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION=true",
-  ]
 
   networks_advanced {
     name = var.HOSTING_NETWORK_NAME

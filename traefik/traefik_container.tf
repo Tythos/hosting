@@ -104,7 +104,75 @@ resource "docker_container" "traefik_container" {
 
   labels {
     label = "traefik.http.middlewares.redirect-main.redirectregex.regex"
-    value = "^https?://(www\\.)?${var.HOST_NAME}/?(.*)"
+    value = "^https?://(www\\.)?${var.HOST_NAME}(/.*)?$$"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.redirect-main.redirectregex.replacement"
+    value = "https://resume.${var.HOST_NAME}/"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.redirect-main.redirectregex.permanent"
+    value = "true"
+  }
+
+  # Dummy service for redirect-only routers
+  labels {
+    label = "traefik.http.services.noop.loadbalancer.server.port"
+    value = "80"
+  }
+
+  # Router for HTTPS root domain redirect
+  labels {
+    label = "traefik.http.routers.root.rule"
+    value = "Host(`${var.HOST_NAME}`) || Host(`www.${var.HOST_NAME}`)"
+  }
+
+  labels {
+    label = "traefik.http.routers.root.entrypoints"
+    value = "websecure"
+  }
+
+  labels {
+    label = "traefik.http.routers.root.tls"
+    value = "true"
+  }
+
+  labels {
+    label = "traefik.http.routers.root.tls.certresolver"
+    value = "letsencrypt"
+  }
+
+  labels {
+    label = "traefik.http.routers.root.middlewares"
+    value = "redirect-main"
+  }
+
+  labels {
+    label = "traefik.http.routers.root.service"
+    value = "noop"
+  }
+
+  # Router for HTTP root domain redirect
+  labels {
+    label = "traefik.http.routers.root-http.rule"
+    value = "Host(`${var.HOST_NAME}`) || Host(`www.${var.HOST_NAME}`)"
+  }
+
+  labels {
+    label = "traefik.http.routers.root-http.entrypoints"
+    value = "web"
+  }
+
+  labels {
+    label = "traefik.http.routers.root-http.middlewares"
+    value = "redirect-main"
+  }
+
+  labels {
+    label = "traefik.http.routers.root-http.service"
+    value = "noop"
   }
 
   labels {

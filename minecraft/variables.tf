@@ -17,3 +17,8 @@ variable "LOKI_URL" {
   type        = string
   description = "URL of the Loki instance to send logs to"
 }
+
+variable "MINECRAFT_JAR_HASH" {
+  type        = string
+  description = "Hash of the Minecraft server jar to use"
+}

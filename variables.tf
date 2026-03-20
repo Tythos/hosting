@@ -90,3 +90,8 @@ variable "FORGEJO_OAUTH_CLIENT_SECRET" {
   type        = string
   description = "OAuth2 Client Secret for Forgejo in Authentik"
 }
+
+variable "MINECRAFT_JAR_HASH" {
+  type        = string
+  description = "Hash of the Minecraft server jar to use"
+}

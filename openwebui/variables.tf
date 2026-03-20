@@ -28,3 +28,9 @@ variable "OPENWEBUI_AUTHENTIK_PROVIDER_SLUG" {
   type        = string
   description = "Authentik OIDC slug for the Open WebUI provider"
 }
+
+variable "OPENWEBUI_OLLAMA_BASE_URL" {
+  type        = string
+  default     = ""
+  description = "If non-empty, sets OLLAMA_BASE_URL for a remote Ollama over Tailscale/VPN"
+}

@@ -1,14 +1,9 @@
 locals {
-  webui_public_url = "https://chat.${var.HOST_NAME}"
-  openid_discovery = "https://auth.${var.HOST_NAME}/application/o/${var.OPENWEBUI_AUTHENTIK_PROVIDER_SLUG}/.well-known/openid-configuration"
-  openid_redirect  = "${local.webui_public_url}/oauth/oidc/callback"
-}
-
-resource "docker_container" "openwebui_container" {
-  image = docker_image.openwebui_image.image_id
-  name  = "openwebui_container"
-
-  env = [
+  webui_public_url    = "https://chat.${var.HOST_NAME}"
+  openid_discovery    = "https://auth.${var.HOST_NAME}/application/o/${var.OPENWEBUI_AUTHENTIK_PROVIDER_SLUG}/.well-known/openid-configuration"
+  openid_redirect     = "${local.webui_public_url}/oauth/oidc/callback"
+  ollama_base_trimmed = trim(var.OPENWEBUI_OLLAMA_BASE_URL, "/")
+  oauth_env = [
     "WEBUI_URL=${local.webui_public_url}",
     "OAUTH_CLIENT_ID=${var.OPENWEBUI_OAUTH_CLIENT_ID}",
     "OAUTH_CLIENT_SECRET=${var.OPENWEBUI_OAUTH_CLIENT_SECRET}",
@@ -19,6 +14,20 @@ resource "docker_container" "openwebui_container" {
     "ENABLE_LOGIN_FORM=true",
     "OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true",
   ]
+  ollama_env    = local.ollama_base_trimmed != "" ? ["OLLAMA_BASE_URL=${local.ollama_base_trimmed}"] : []
+  container_env = concat(local.oauth_env, local.ollama_env)
+}
+
+resource "docker_container" "openwebui_container" {
+  image = docker_image.openwebui_image.image_id
+  name  = "openwebui_container"
+
+  env = local.container_env
+
+  # MagicDNS (*.ts.net) for OPENWEBUI_OLLAMA_BASE_URL does not resolve through Docker’s
+  # default resolver on many hosts; Tailscale’s DNS at 100.100.100.100 handles tailnet names.
+  # Fallback keeps public lookups working if MagicDNS is unavailable.
+  dns = ["100.100.100.100", "1.1.1.1"]
 
   networks_advanced {
     name = var.HOSTING_NETWORK_NAME

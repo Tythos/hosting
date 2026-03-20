@@ -110,3 +110,9 @@ variable "OPENWEBUI_AUTHENTIK_PROVIDER_SLUG" {
   type        = string
   description = "Authentik provider/application slug (path segment in https://auth.<HOST_NAME>/application/o/<slug>/)"
 }
+
+variable "OPENWEBUI_OLLAMA_BASE_URL" {
+  type        = string
+  default     = ""
+  description = "Remote Ollama base URL reachable from the VPS (no trailing slash), e.g. http://100.x.x.x:11434 or http://your-pc.tailnet-name.ts.net:11434. Set after Tailscale is up on both nodes. Leave empty to omit OLLAMA_BASE_URL (Open WebUI defaults)."
+}

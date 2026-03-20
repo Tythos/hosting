@@ -95,3 +95,18 @@ variable "MINECRAFT_JAR_HASH" {
   type        = string
   description = "Hash of the Minecraft server jar to use"
 }
+
+variable "OPENWEBUI_OAUTH_CLIENT_ID" {
+  type        = string
+  description = "OAuth2 Client ID for Open WebUI in Authentik"
+}
+
+variable "OPENWEBUI_OAUTH_CLIENT_SECRET" {
+  type        = string
+  description = "OAuth2 Client Secret for Open WebUI in Authentik"
+}
+
+variable "OPENWEBUI_AUTHENTIK_PROVIDER_SLUG" {
+  type        = string
+  description = "Authentik provider/application slug (path segment in https://auth.<HOST_NAME>/application/o/<slug>/)"
+}

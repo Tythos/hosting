@@ -120,10 +120,13 @@ module "node_exporter" {
 }
 
 module "openwebui" {
-  source               = "./openwebui"
-  HOST_NAME            = var.HOST_NAME
-  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
-  STATE_PATH           = "${var.MOUNTED_VOLUME}/openwebui"
+  source                            = "./openwebui"
+  HOST_NAME                         = var.HOST_NAME
+  HOSTING_NETWORK_NAME              = docker_network.hosting_network.name
+  STATE_PATH                        = "${var.MOUNTED_VOLUME}/openwebui"
+  OPENWEBUI_OAUTH_CLIENT_ID         = var.OPENWEBUI_OAUTH_CLIENT_ID
+  OPENWEBUI_OAUTH_CLIENT_SECRET     = var.OPENWEBUI_OAUTH_CLIENT_SECRET
+  OPENWEBUI_AUTHENTIK_PROVIDER_SLUG = var.OPENWEBUI_AUTHENTIK_PROVIDER_SLUG
 }
 
 module "postgres" {

@@ -21,13 +21,13 @@ This document outlines work to add **Open WebUI** to the existing Traefik + Dock
 
 ## Phase 2 — Authentik “behind auth” (choose one integration style)
 
-- [ ] 2.1 **Authentik admin**: create an **OAuth2/OpenID provider** + **application** for Open WebUI (in line with patterns from the Forgejo app).
+- [x] 2.1 **Authentik admin**: create an **OAuth2/OpenID provider** + **application** for Open WebUI (in line with patterns from the Forgejo app). Step-by-step: [AUTHENTIK_OPENWEBUI_SETUP.md](./AUTHENTIK_OPENWEBUI_SETUP.md).
 
-- [ ] 2.2 **Redirect / callback URL** Open WebUI expects (depends on `WEBUI_URL` / public URL — typically `https://<subdomain>.<HOST_NAME>/oauth/openid/callback` or the value given in Open WebUI docs for your version).
+- [x] 2.2 **Redirect / callback URL** — `https://chat.<HOST_NAME>/oauth/oidc/callback` (Authentik + Open WebUI OIDC); see `terraform output OPENWEBUI_OPENID_REDIRECT_URI`.
 
-- [ ] 2.3 **Terraform variables** (mirror `FORGEJO_OAUTH_*`): e.g. `OPENWEBUI_OAUTH_CLIENT_ID` and `OPEN_WEBUI_OAUTH_CLIENT_SECRET` (sensitive), passed into the container as the env vars Open WebUI requires for your chosen provider type (OIDC vs generic OAuth).
+- [x] 2.3 **Terraform variables** — `OPENWEBUI_OAUTH_CLIENT_ID`, `OPENWEBUI_OAUTH_CLIENT_SECRET`, `OPENWEBUI_AUTHENTIK_PROVIDER_SLUG`; wired in `openwebui` module `env` (`OAUTH_*`, `OPENID_*`).
 
-- [ ] 2.4 **Public URL env vars** on the container so links and OIDC redirects are correct behind Traefik (`WEBUI_URL` or equivalent for the image version).
+- [x] 2.4 **Public URL** — `WEBUI_URL=https://chat.<HOST_NAME>` on the container (with discovery + redirect URIs derived from `HOST_NAME` + slug).
 
 ## Phase 3 — VPN: droplet ↔ home desktop on a private subnet
 

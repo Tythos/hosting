@@ -111,12 +111,19 @@ module "minecraft" {
   HOST_NAME            = var.HOST_NAME
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
   LOKI_URL             = module.loki.LOKI_URL
-  MINECRAFT_JAR_HASH  = var.MINECRAFT_JAR_HASH
+  MINECRAFT_JAR_HASH   = var.MINECRAFT_JAR_HASH
 }
 
 module "node_exporter" {
   source               = "./node_exporter"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+}
+
+module "openwebui" {
+  source               = "./openwebui"
+  HOST_NAME            = var.HOST_NAME
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/openwebui"
 }
 
 module "postgres" {

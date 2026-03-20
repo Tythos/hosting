@@ -10,18 +10,18 @@ This document outlines work to add **Open WebUI** to the existing Traefik + Dock
 
 ## Phase 1 — Open WebUI service (Terraform)
 
-- [ ] 1.1 **Add a dedicated module** (e.g. `openwebui/`) consistent with `whoami`, `grafana`, `code`:
+- [x] 1.1 **Add a dedicated module** (e.g. `openwebui/`) consistent with `whoami`, `grafana`, `code`:
    - `docker_image` pinned to a specific `ghcr.io/open-webui/open-webui` tag (or your chosen image).
    - `docker_container` on `hosting_network`, named volume or bind under `${var.MOUNTED_VOLUME}/openwebui` for persistence.
    - **Traefik labels**: new hostname (decide subdomain: e.g. `chat`), TLS, `websecure`, service port (Open WebUI default is typically **8080** — confirm in image docs for the chosen tag).
 
-- [ ] 1.2 **Wire the module in `main.tf`**: pass `HOST_NAME`, `HOSTING_NETWORK_NAME`, `STATE_PATH`, and any auth-related variables.
+- [x] 1.2 **Wire the module in `main.tf`**: pass `HOST_NAME`, `HOSTING_NETWORK_NAME`, `STATE_PATH`, and any auth-related variables.
 
-- [ ] 1.3 **Observability**: Basic RED/USE metrics presented within Grafana
+- [x] 1.3 **Observability**: Basic RED/USE metrics in **existing** Grafana — import `grafana/dashboards/openwebui-chat-red-use.json` (maps to your current Prometheus); edge RED from Traefik `chat@docker`, host USE from `node_exporter`. See `grafana/dashboards/README.md`.
 
 ## Phase 2 — Authentik “behind auth” (choose one integration style)
 
-- [ ] 2.1 **Authentik admin**: create an **OAuth2/OpenID provider** + **application** for Open WebUI (or reuse patterns from the Forgejo app).
+- [ ] 2.1 **Authentik admin**: create an **OAuth2/OpenID provider** + **application** for Open WebUI (in line with patterns from the Forgejo app).
 
 - [ ] 2.2 **Redirect / callback URL** Open WebUI expects (depends on `WEBUI_URL` / public URL — typically `https://<subdomain>.<HOST_NAME>/oauth/openid/callback` or the value given in Open WebUI docs for your version).
 

@@ -1,5 +1,5 @@
 # set up initial image config
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:25-jre-jammy
 ARG SERVER_JAR_URL=https://piston-data.mojang.com/v1/objects/11e54c2081420a4d49db3007e66c80a22579ff2a/server.jar
 WORKDIR /minecraft
 

@@ -38,9 +38,14 @@ resource "docker_container" "minecraft_container" {
     value = "HostSNI(`*`)"
   }
 
+  # for java debugging (manual entry)
+  #entrypoint = ["/bin/bash"]
+  #stdin_open = true
+  #tty        = true
+
   volumes {
-    host_path      = "${var.STATE_PATH}/world"
-    container_path = "/minecraft/world"
+    host_path      = "${var.STATE_PATH}/world_parent"
+    container_path = "/minecraft/saves"
   }
 
   volumes {

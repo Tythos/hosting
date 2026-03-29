@@ -13,6 +13,7 @@ locals {
     "ENABLE_OAUTH_SIGNUP=true",
     "ENABLE_LOGIN_FORM=true",
     "OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true",
+    "HF_TOKEN=${var.OPENWEBUI_HF_TOKEN}",
   ]
   ollama_env    = local.ollama_base_trimmed != "" ? ["OLLAMA_BASE_URL=${local.ollama_base_trimmed}"] : []
   container_env = concat(local.oauth_env, local.ollama_env)

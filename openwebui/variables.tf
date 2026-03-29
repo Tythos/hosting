@@ -34,3 +34,9 @@ variable "OPENWEBUI_OLLAMA_BASE_URL" {
   default     = ""
   description = "If non-empty, sets OLLAMA_BASE_URL for a remote Ollama over Tailscale/VPN"
 }
+
+variable "OPENWEBUI_HF_TOKEN" {
+  type        = string
+  default     = ""
+  description = "Hugging Face token for Open WebUI to use for remote interactions"
+}

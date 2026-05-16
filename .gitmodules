@@ -1,0 +1,3 @@
+[submodule "scotland/www"]
+	path = scotland/www
+	url = https://codeberg.org/tythos/scotland.git

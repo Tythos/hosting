@@ -166,6 +166,12 @@ module "resume" {
   LOKI_URL             = module.loki.LOKI_URL
 }
 
+module "scotland" {
+  source               = "./scotland"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+}
+
 module "seafile" {
   source               = "./seafile"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

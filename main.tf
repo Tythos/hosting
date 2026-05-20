@@ -189,6 +189,12 @@ module "smogwarts" {
   LOKI_URL             = module.loki.LOKI_URL
 }
 
+module "spain" {
+  source               = "./spain"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  HOST_NAME            = var.HOST_NAME
+}
+
 module "tempo" {
   source               = "./tempo"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

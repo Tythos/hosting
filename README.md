@@ -238,3 +238,17 @@ https://dev.to/code42cate/how-i-save-by-self-hosting-these-5-open-source-tools-1
 - [ ] Coupler for provisioning a Grafana source from Actual database
 
 - [ ] Stonks!
+
+## Hardening
+
+We're seeing a lot of snooping every time a new service goes up. Which is strange because they're all on submodules so either someone's scraping the Github or they're divining service mappings from Traefik data. Some suggestions:
+
+- [ ] **Cloudflare WAF Rules (Free Tier Covers This)**: Since we're already using Cloudflare for DNS/TLS challenges, we're one toggle away from using it as an actual WAF. In our providers.tf / Cloudflare Terraform resources, add a ruleset to block scanners
+
+- [ ] **Traefik Middleware: Global Bad-Path Blocking**: This is the highest-leverage, lowest-effort win. Traefik supports Plugin and native IPAllowList/Headers middleware, but we can also use a redirectRegex or — better — a custom blockList via a plugin middleware or a chain with stripPrefix + a catch-all 403.
+
+- [ ] **Authentik Forward Auth as Default Middleware**: We already have Authentik running. The missing piece is making it the default for anything that isn't explicitly public, rather than opt-in per service. Traefik's forwardAuth middleware can be defined once and applied via an entryPoints-level middleware chain:
+
+- [ ] **Fail2Ban or CrowdSec Sidecar for Repeat Offenders**: The above approaches block known-bad patterns, but they don't actually ban IPs that are repeatedly probing. Since we have Loki already ingesting all our container logs, we can close the loop with CrowdSec — it reads logs, detects attack patterns, and feeds bans back into Traefik via a bouncer plugin. It's Docker-native and has a Traefik bouncer maintained by the CrowdSec team.
+
+- [ ] **Reverse-Engineering the Discovery**: The wildcard cert vs. per-service cert question is worth checking in our Traefik config. If each docker_container label set is triggering individual ACME cert requests per subdomain, we're essentially announcing every new service to the internet the moment it starts. Switching to a single wildcard cert issued once (using the DNS challenge we already have Cloudflare wired for) would eliminate that signal entirely

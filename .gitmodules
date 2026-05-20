@@ -1,3 +1,6 @@
 [submodule "scotland/www"]
 	path = scotland/www
 	url = https://codeberg.org/tythos/scotland.git
+[submodule "spain/www"]
+	path = spain/www
+	url = ssh://git@codeberg.org/tythos/spain.git

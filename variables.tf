@@ -122,3 +122,18 @@ variable "OPENWEBUI_HF_TOKEN" {
   default     = ""
   description = "Hugging Face token for Open WebUI to use for remote interactions"
 }
+
+variable "WAF_ENABLE_SCANNER_BLOCK" {
+  type        = bool
+  description = "Enable custom rule to block known scanner user agents"
+}
+
+variable "WAF_ENABLE_PROBE_BLOCK" {
+  type        = bool
+  description = "Enable custom rule to block common probe paths"
+}
+
+variable "WAF_ENABLE_RATE_LIMIT" {
+  type        = bool
+  description = "Enable rate limiting for repeated 404/403 responses"
+}

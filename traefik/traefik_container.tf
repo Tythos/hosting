@@ -6,6 +6,9 @@ resource "docker_container" "traefik_container" {
     "--api.dashboard=true",
     "--providers.docker",
     "--entrypoints.web.address=:80",
+    "--entrypoints.web.http.redirections.entrypoint.to=websecure",
+    "--entrypoints.web.http.redirections.entrypoint.scheme=https",
+    "--entrypoints.web.http.redirections.entrypoint.permanent=true",
     "--entrypoints.websecure.address=:443",
     "--entrypoints.ssh.address=:2222",
     "--entrypoints.minecraft.address=:25565",
@@ -151,27 +154,6 @@ resource "docker_container" "traefik_container" {
 
   labels {
     label = "traefik.http.routers.root.service"
-    value = "noop"
-  }
-
-  # Router for HTTP root domain redirect
-  labels {
-    label = "traefik.http.routers.root-http.rule"
-    value = "Host(`${var.HOST_NAME}`) || Host(`www.${var.HOST_NAME}`)"
-  }
-
-  labels {
-    label = "traefik.http.routers.root-http.entrypoints"
-    value = "web"
-  }
-
-  labels {
-    label = "traefik.http.routers.root-http.middlewares"
-    value = "redirect-main"
-  }
-
-  labels {
-    label = "traefik.http.routers.root-http.service"
     value = "noop"
   }
 

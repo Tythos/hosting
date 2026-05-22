@@ -1,6 +1,6 @@
 # hosting
 
-## background
+## Background
 
 This project defines a Terraform-based deployment of multi-service hosting configuration.
 
@@ -40,28 +40,6 @@ To define a new service:
 
 1. Add labels to the `docker_container` indicating how it should be identified/routed; for secured endpoints, the router labels should define relevant TLS options, and logging options should be included if service reports will be aggregated
 
-## Observability
-
-- [x] *Metrics*: Prometheus for metrics collection from metaservices, host node, and containerized services/applications; node-exporter for host resource metrics (through Prometheus)
-
-- [x] *Logs*: Loki for aggregation/storage/exposure (via Loki Docker plugin driver)
-
-- [x] *Tracing*: Tempo with OTEL instrumentation (particularly useful with the `opentelemetry-instrument` middleware/launcher/wrapper for Flask)
-
-Grafana is the primary presentation target for dashboarding each observability signal.
-
-## Authentication & Authorization
-
-### Authentik & Forgejo OAuth2/OIDC Integration
-
-- [x] Authentik instance configured as identity provider (`auth.${HOST_NAME}`)
-
-- [x] Forgejo configured to support OAuth2/OIDC authentication
-
-- [x] OAuth2 client credentials managed via Terraform (client secret auto-generated)
-
-- [x] Environment variables configured for OpenID Connect auto-registration
-
 **Setup Instructions**: See [AUTHENTIK_FORGEJO_SETUP.md](./AUTHENTIK_FORGEJO_SETUP.md) for detailed manual configuration steps for both Authentik (provider) and Forgejo (client).
 
 **Retrieve OAuth2 Credentials**:
@@ -75,84 +53,6 @@ terraform output module.code.FORGEJO_REDIRECT_URI
 - Auto-registration of users on first login
 - Support for both local and OAuth2 authentication methods
 - Secure client secret generation via Terraform
-
-## TODO
-
-- [x] Routing (and load balancing)
-
-- [x] HTTPS / TLS
-
-- [x] Other middleware (redirect? basicauth, actually)
-
-- ~~[ ] Templated traefik configuration (static yaml? might not be a good idea)~~
-
-- [x] Initial nginx-based service
-
-- [x] Initial static content host via above from specific volume
-
-- Migrate volume contents
-
-  - [x] Smogwarts
-   
-  - [x] Resume
-
-  - Non-hosted
-
-    - [x] Kifiew
-
-    - [ ] Jabber
-
-    - [ ] Barebones
-
-    - [ ] Cuben
-
-    - [ ] Engine
-
-    - [ ] (miscellaneous)
-
-  - [x] Macercy
-
-  - [x] Aero
-
-  - [ ] Culinary Colqhoun
-
-  - [ ] Conferences?
-
-  - [ ] Controls?
-
-  - [ ] Creatives
-
-  - [ ] KMZ/Geoint
-
-  - [ ] Leroy
-
-  - [ ] No Debt Unpaid
-
-  - [ ] The Writing Horse
-
-  - [ ] Wallpapers
-
-- [x] Honestly it wouldn't be a bad idea to demo and/or port a PHP app from the above list  
-
-- [x] Once TLS is implemented we need to "lock down" all other endpoints and put the dashboard behind a login
-
-- [ ] Migrate to OpenTofu?
-
-- [ ] Demonstrate/pathfind a database integration of some kind?
-
-- Replace tythos.net
-
-  - [ ] Migrate domain registration to Cloudflare
-
-  - [ ] Change TLD in HOST_NAME value
-
-  - [x] Update Cloudflare parameters (zone, etc.)
-
-  - [ ] Force renewal of all certificates
-
-  - [ ] Remove/shutdown all old resources/subscriptsion
-
-  - [ ] Optionally look at migrating/merging Minecraft server as well?
 
 ## Status/Health cURL Queries
 

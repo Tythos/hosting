@@ -1,29 +1,28 @@
-variable "HOST_NAME" {
-  type        = string
-  description = "Concatenated to subdomain to construct FQDN used in routing rules and TLS signing"
+variable "HOSTING_NETWORK_NAME" {
+  type    = string
+  default = ""
 }
 
-variable "HOSTING_NETWORK_NAME" {
-  type        = string
-  description = "Name of internal Docker network used for routing"
+variable "HOST_NAME" {
+  type    = string
+  default = ""
 }
 
 variable "LOKI_URL" {
-  type        = string
-  description = "URL of the Loki instance to send logs to"
+  type    = string
+  default = ""
 }
 
 variable "RESEND_API_KEY" {
-  type        = string
-  description = "The API key to use for Resend email sending"
+  type    = string
+  default = ""
 }
-
 variable "TEMPO_ENDPOINT" {
-  type        = string
-  description = "The endpoint of the Tempo instance to send traces to"
+  type    = string
+  default = ""
 }
 
 variable "AUTOMATION_EMAIL_USER" {
-  type        = string
-  description = "The username for the automation email account"
+  type    = string
+  default = ""
 }

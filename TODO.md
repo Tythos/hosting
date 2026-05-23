@@ -126,14 +126,21 @@ We're seeing a lot of snooping every time a new service goes up. Which is strang
 
 - [x] **8.1** - *Cloudflare WAF Rules (Free Tier Covers This)*: Since we're already using Cloudflare for DNS/TLS challenges, we're one toggle away from using it as an actual WAF. In our providers.tf / Cloudflare Terraform resources, add a ruleset to block scanners
 
-- [ ] **8.2** - *Traefik Middleware: Global Bad-Path Blocking*: This is the highest-leverage, lowest-effort win. Traefik supports Plugin and native IPAllowList/Headers middleware, but we can also use a redirectRegex or — better — a custom blockList via a plugin middleware or a chain with stripPrefix + a catch-all 403.
+- [x] **8.2** - *Traefik Middleware: Global Bad-Path Blocking*: This is the highest-leverage, lowest-effort win. Traefik supports Plugin and native IPAllowList/Headers middleware, but we can also use a redirectRegex or — better — a custom blockList via a plugin middleware or a chain with stripPrefix + a catch-all 403.
 
   - [x] **8.2.1** - Deploy a "blackhole" container (nginx:alpine returning 403) registered as a Traefik service
   - [x] **8.2.2** - Define HostRegexp + PathPrefix blocking routers on Traefik for common scanner probe paths
   - [x] **8.2.3** - Add Loki logging to the blackhole container for blocked-request auditing
   - [x] **8.2.4** - Verify blocking works and normal traffic is unaffected
 
-- [ ] **8.3** - *Authentik Forward Auth as Default Middleware*: We already have Authentik running. The missing piece is making it the default for anything that isn't explicitly public, rather than opt-in per service. Traefik's forwardAuth middleware can be defined once and applied via an entryPoints-level middleware chain:
+- [ ] **8.3** - *Authentik Forward Auth as Default Middleware*: We already have Authentik running. The missing piece is making it the default for anything that isn't explicitly public, rather than opt-in per service. Traefik's forwardAuth middleware can be defined once and applied via an entryPoints-level middleware chain (note: entrypoint-level middleware cannot be bypassed at the router level, so we use a router-level convention — every service gets the auth middleware unless explicitly listed as public):
+
+  - [x] **8.3.1** - Define `authentik-auth` forwardAuth middleware on the Traefik container pointing at `http://authentik_server_container:9000/outpost.goauthentik.io/auth/traefik`, with auth response headers forwarded
+  - [x] **8.3.2** - Define `public` bypass middleware (empty chain) on the Traefik container for services that should remain accessible without auth
+  - [x] **8.3.3** - Add `authentik-auth` middleware label to every non-public service module (adminer, aero, cc, easton, flask, grafana, kifiew, macercy, scotland, seafile, smogwarts, spain)
+  - [x] **8.3.4** - Migrate Traefik dashboard from `basic-auth` to `authentik-auth` (chained for defense-in-depth)
+  - [x] **8.3.5** - Verify auth gate works on protected services and public services (resume, whoami) are unaffected; confirm code/Forgejo and openwebui (which have their own OIDC flows) are not double-authed
+  - [x] **8.3.6** - Update README.md "Extension" section to document that new services should include the `authentik-auth` middleware label unless they are intentionally public
 
 - [ ] **8.4** - *Fail2Ban or CrowdSec Sidecar for Repeat Offenders*: The above approaches block known-bad patterns, but they don't actually ban IPs that are repeatedly probing. Since we have Loki already ingesting all our container logs, we can close the loop with CrowdSec — it reads logs, detects attack patterns, and feeds bans back into Traefik via a bouncer plugin. It's Docker-native and has a Traefik bouncer maintained by the CrowdSec team.
 

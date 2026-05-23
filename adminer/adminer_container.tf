@@ -36,4 +36,9 @@ resource "docker_container" "adminer_container" {
     label = "traefik.http.routers.adminer.entrypoints"
     value = "websecure"
   }
+
+  labels {
+    label = "traefik.http.routers.adminer.middlewares"
+    value = "authentik-auth"
+  }
 }

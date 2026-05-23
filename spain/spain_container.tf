@@ -29,4 +29,9 @@ resource "docker_container" "spain_container" {
     label = "traefik.http.routers.spain.entrypoints"
     value = "websecure"
   }
+
+  # labels {
+  #   label = "traefik.http.routers.spain.middlewares"
+  #   value = "authentik-auth"
+  # }
 }

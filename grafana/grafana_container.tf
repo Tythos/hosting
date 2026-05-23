@@ -36,4 +36,9 @@ resource "docker_container" "grafana_container" {
     label = "traefik.http.routers.grafana.entrypoints"
     value = "websecure"
   }
+
+  # labels {
+  #   label = "traefik.http.routers.grafana.middlewares"
+  #   value = "authentik-auth"
+  # }
 }

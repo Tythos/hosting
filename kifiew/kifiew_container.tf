@@ -30,6 +30,11 @@ resource "docker_container" "kifiew_container" {
     value = "websecure"
   }
 
+  # labels {
+  #   label = "traefik.http.routers.kifiew.middlewares"
+  #   value = "authentik-auth"
+  # }
+
   volumes {
     host_path      = var.STATE_PATH
     container_path = "/usr/share/nginx/html"

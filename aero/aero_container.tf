@@ -30,6 +30,11 @@ resource "docker_container" "aero_container" {
     value = "websecure"
   }
 
+  # labels {
+  #   label = "traefik.http.routers.aero.middlewares"
+  #   value = "authentik-auth"
+  # }
+
   volumes {
     host_path      = var.STATE_PATH
     container_path = "/var/www/html"

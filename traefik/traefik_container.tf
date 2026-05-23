@@ -97,7 +97,7 @@ resource "docker_container" "traefik_container" {
 
   labels {
     label = "traefik.http.routers.dashboard.middlewares"
-    value = "basic-auth"
+    value = "basic-auth" # authentik-auth
   }
 
   labels {
@@ -120,13 +120,32 @@ resource "docker_container" "traefik_container" {
     value = "true"
   }
 
-  # Dummy service for redirect-only routers
+  # ── Authentik forward auth middleware ──────────────────────────────────
+  labels {
+    label = "traefik.http.middlewares.authentik-auth.forwardAuth.address"
+    value = "http://authentik_server_container:9000/outpost.goauthentik.io/auth/traefik"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.authentik-auth.forwardAuth.trustForwardHeader"
+    value = "true"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.authentik-auth.forwardAuth.authResponseHeaders"
+    value = "X-authentik-username, X-authentik-groups, X-authentik-email, X-authentik-name, X-authentik-uid"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.public.chain.middlewares"
+    value = ""
+  }
+
   labels {
     label = "traefik.http.services.noop.loadbalancer.server.port"
     value = "80"
   }
 
-  # Router for HTTPS root domain redirect
   labels {
     label = "traefik.http.routers.root.rule"
     value = "Host(`${var.HOST_NAME}`) || Host(`www.${var.HOST_NAME}`)"

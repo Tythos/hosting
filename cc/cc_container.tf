@@ -30,6 +30,11 @@ resource "docker_container" "cc_container" {
     value = "websecure"
   }
 
+  # labels {
+  #   label = "traefik.http.routers.cc.middlewares"
+  #   value = "authentik-auth"
+  # }
+
   volumes {
     host_path      = var.STATE_PATH
     container_path = "/var/www/html"

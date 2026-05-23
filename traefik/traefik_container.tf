@@ -157,6 +157,51 @@ resource "docker_container" "traefik_container" {
     value = "noop"
   }
 
+  # ── Bad-path blocking routers ──────────────────────────────────────────
+  # Each router matches HostRegexp (any subdomain) + PathPrefix (scanner path)
+  # and routes to the blackhole container (403).  High priority ensures the
+  # block is evaluated before the target service router.
+
+  dynamic "labels" {
+    for_each = local.blocked_paths
+    content {
+      label = "traefik.http.routers.block-${labels.key}.rule"
+      value = "HostRegexp(`^[a-zA-Z0-9-]+\\.${replace(var.HOST_NAME, ".", "\\.")}$`) && PathPrefix(`${labels.value}`)"
+    }
+  }
+
+  dynamic "labels" {
+    for_each = local.blocked_paths
+    content {
+      label = "traefik.http.routers.block-${labels.key}.priority"
+      value = "100"
+    }
+  }
+
+  dynamic "labels" {
+    for_each = local.blocked_paths
+    content {
+      label = "traefik.http.routers.block-${labels.key}.entrypoints"
+      value = "websecure"
+    }
+  }
+
+  dynamic "labels" {
+    for_each = local.blocked_paths
+    content {
+      label = "traefik.http.routers.block-${labels.key}.tls"
+      value = "true"
+    }
+  }
+
+  dynamic "labels" {
+    for_each = local.blocked_paths
+    content {
+      label = "traefik.http.routers.block-${labels.key}.service"
+      value = "blackhole@docker"
+    }
+  }
+
   labels {
     label = "prometheus.scrape"
     value = "true"
@@ -170,5 +215,38 @@ resource "docker_container" "traefik_container" {
   labels {
     label = "prometheus.job"
     value = "traefik"
+  }
+}
+
+locals {
+  blocked_paths = {
+    env            = "/.env"
+    git            = "/.git"
+    aws            = "/.aws"
+    ssh            = "/.ssh"
+    wp_admin       = "/wp-admin"
+    wp_login       = "/wp-login"
+    xmlrpc         = "/xmlrpc.php"
+    admin          = "/admin"
+    administrator  = "/administrator"
+    backup         = "/backup"
+    bitrix         = "/bitrix"
+    config         = "/config"
+    debug          = "/debug"
+    test           = "/test"
+    console        = "/console"
+    actuator       = "/actuator"
+    vendor         = "/vendor"
+    cgi_bin        = "/cgi-bin"
+    server_status  = "/server-status"
+    server_info    = "/server-info"
+    composer       = "/composer.json"
+    package        = "/package.json"
+    docker_compose = "/docker-compose"
+    phpinfo        = "/phpinfo.php"
+    info           = "/info.php"
+    shell          = "/shell.php"
+    procfile       = "/Procfile"
+    dockerfile     = "/Dockerfile"
   }
 }

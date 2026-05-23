@@ -124,9 +124,14 @@ https://dev.to/code42cate/how-i-save-by-self-hosting-these-5-open-source-tools-1
 
 We're seeing a lot of snooping every time a new service goes up. Which is strange because they're all on submodules so either someone's scraping the Github or they're divining service mappings from Traefik data. Some suggestions:
 
-- [ ] **8.1** - *Cloudflare WAF Rules (Free Tier Covers This)*: Since we're already using Cloudflare for DNS/TLS challenges, we're one toggle away from using it as an actual WAF. In our providers.tf / Cloudflare Terraform resources, add a ruleset to block scanners
+- [x] **8.1** - *Cloudflare WAF Rules (Free Tier Covers This)*: Since we're already using Cloudflare for DNS/TLS challenges, we're one toggle away from using it as an actual WAF. In our providers.tf / Cloudflare Terraform resources, add a ruleset to block scanners
 
 - [ ] **8.2** - *Traefik Middleware: Global Bad-Path Blocking*: This is the highest-leverage, lowest-effort win. Traefik supports Plugin and native IPAllowList/Headers middleware, but we can also use a redirectRegex or — better — a custom blockList via a plugin middleware or a chain with stripPrefix + a catch-all 403.
+
+  - [x] **8.2.1** - Deploy a "blackhole" container (nginx:alpine returning 403) registered as a Traefik service
+  - [x] **8.2.2** - Define HostRegexp + PathPrefix blocking routers on Traefik for common scanner probe paths
+  - [x] **8.2.3** - Add Loki logging to the blackhole container for blocked-request auditing
+  - [x] **8.2.4** - Verify blocking works and normal traffic is unaffected
 
 - [ ] **8.3** - *Authentik Forward Auth as Default Middleware*: We already have Authentik running. The missing piece is making it the default for anything that isn't explicitly public, rather than opt-in per service. Traefik's forwardAuth middleware can be defined once and applied via an entryPoints-level middleware chain:
 

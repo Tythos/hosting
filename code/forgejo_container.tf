@@ -39,10 +39,10 @@ resource "null_resource" "forgejo_auth_source" {
   depends_on = [
     docker_container.forgejo_container
   ]
-  
+
   triggers = {
     # Re-run if credentials change
-    client_id = var.FORGEJO_OAUTH_CLIENT_ID
+    client_id     = var.FORGEJO_OAUTH_CLIENT_ID
     client_secret = var.FORGEJO_OAUTH_CLIENT_SECRET
     # But don't re-run every time
     config_version = "v1"

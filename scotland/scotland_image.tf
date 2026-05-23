@@ -1,5 +1,5 @@
 resource "docker_image" "scotland_image" {
-  name = "scotland:latest"
+  name         = "scotland:latest"
   keep_locally = true
 
   triggers = {
@@ -7,6 +7,6 @@ resource "docker_image" "scotland_image" {
   }
 
   build {
-    context = "${path.module}"
+    context = path.module
   }
 }

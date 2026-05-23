@@ -26,6 +26,12 @@ module "auth" {
   STATE_PATH           = "${var.MOUNTED_VOLUME}/auth"
 }
 
+module "blackhole" {
+  source               = "./blackhole"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  LOKI_URL             = module.loki.LOKI_URL
+}
+
 module "cc" {
   source               = "./cc"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

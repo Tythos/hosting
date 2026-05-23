@@ -35,19 +35,19 @@ resource "cloudflare_ruleset" "waf_custom" {
     {
       action = "block"
       expression = join(" or ", [
-          for path in [
-            "/.env", "/.git", "/.aws", "/.ssh",
-            "/vendor",
-            "/wp-admin", "/wp-login", "/wp-content", "/wp-includes",
-            "/xmlrpc.php",
-            "/administrator",
-            "/bitrix",
-            "/composer.json", "/package.json",
-            "/Dockerfile", "/docker-compose",
-            "/Procfile",
-            "/server-status", "/server-info",
-            "/phpinfo.php", "/info.php", "/shell.php",
-          ] : format("starts_with(http.request.uri.path, %q)", path)
+        for path in [
+          "/.env", "/.git", "/.aws", "/.ssh",
+          "/vendor",
+          "/wp-admin", "/wp-login", "/wp-content", "/wp-includes",
+          "/xmlrpc.php",
+          "/administrator",
+          "/bitrix",
+          "/composer.json", "/package.json",
+          "/Dockerfile", "/docker-compose",
+          "/Procfile",
+          "/server-status", "/server-info",
+          "/phpinfo.php", "/info.php", "/shell.php",
+        ] : format("starts_with(http.request.uri.path, %q)", path)
       ])
       description = "Block common probe paths"
       enabled     = var.WAF_ENABLE_PROBE_BLOCK

@@ -32,3 +32,8 @@ variable "CF_DNS_API_TOKEN" {
   type        = string
   description = "The DNS API token to use for Cloudflare DNS updates"
 }
+
+variable "TRAEFIK_LOG_PATH" {
+  type        = string
+  description = "Host path to directory where Traefik writes HTTP access logs (shared with CrowdSec)"
+}

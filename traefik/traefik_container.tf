@@ -25,7 +25,10 @@ resource "docker_container" "traefik_container" {
     # "--metrics.prometheus.scrape=true",
     # "--metrics.prometheus.port=8080",
     # "--metrics.prometheus.job=traefik",
-    "--metrics.addinternals"
+    "--metrics.addinternals",
+    "--accesslog=true",
+    "--accesslog.filepath=/var/log/traefik/access.log",
+    "--accesslog.format=json"
   ]
 
   env = [
@@ -66,6 +69,11 @@ resource "docker_container" "traefik_container" {
   volumes {
     host_path      = "/etc/letsencrypt"
     container_path = "/etc/letsencrypt"
+  }
+
+  volumes {
+    host_path      = var.TRAEFIK_LOG_PATH
+    container_path = "/var/log/traefik"
   }
 
   # labels for the dashboard itself are assigned via router w/ middleware

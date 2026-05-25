@@ -48,6 +48,13 @@ module "code" {
   FORGEJO_OAUTH_CLIENT_SECRET = var.FORGEJO_OAUTH_CLIENT_SECRET
 }
 
+module "crowdsec" {
+  source               = "./crowdsec"
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/crowdsec"
+  TRAEFIK_LOG_PATH     = "${var.MOUNTED_VOLUME}/traefik"
+}
+
 module "easton" {
   source               = "./easton"
   HOST_NAME            = var.HOST_NAME
@@ -217,6 +224,7 @@ module "traefik" {
   LETSENCRYPT_ORIGIN   = var.LETSENCRYPT_ORIGIN
   CF_API_KEY           = var.CF_API_KEY
   CF_DNS_API_TOKEN     = var.CF_DNS_API_TOKEN
+  TRAEFIK_LOG_PATH     = "${var.MOUNTED_VOLUME}/traefik"
 }
 
 module "whoami" {

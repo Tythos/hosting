@@ -28,7 +28,11 @@ resource "docker_container" "traefik_container" {
     "--metrics.addinternals",
     "--accesslog=true",
     "--accesslog.filepath=/var/log/traefik/access.log",
-    "--accesslog.format=json"
+    "--accesslog.format=json",
+
+    # ── CrowdSec bouncer plugin ──────────────────────────────────────────
+    "--experimental.plugins.crowdsec-bouncer.moduleName=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin",
+    "--experimental.plugins.crowdsec-bouncer.version=v1.6.0"
   ]
 
   env = [
@@ -147,6 +151,27 @@ resource "docker_container" "traefik_container" {
   labels {
     label = "traefik.http.middlewares.public.chain.middlewares"
     value = ""
+  }
+
+  # ── CrowdSec bouncer middleware (plugin) ────────────────────────────────
+  labels {
+    label = "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.enabled"
+    value = "true"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdseclapihost"
+    value = "crowdsec_container:8080"
+  }
+
+  labels {
+    label = "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdseclapikey"
+    value = var.CROWDSEC_BOUNCER_API_KEY
+  }
+
+  labels {
+    label = "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdseclapischeme"
+    value = "http"
   }
 
   labels {

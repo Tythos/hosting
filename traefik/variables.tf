@@ -37,3 +37,9 @@ variable "TRAEFIK_LOG_PATH" {
   type        = string
   description = "Host path to directory where Traefik writes HTTP access logs (shared with CrowdSec)"
 }
+
+variable "CROWDSEC_BOUNCER_API_KEY" {
+  type        = string
+  description = "API key for the CrowdSec bouncer to authenticate with LAPI"
+  sensitive   = true
+}

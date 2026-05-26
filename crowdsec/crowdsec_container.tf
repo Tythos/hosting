@@ -23,4 +23,9 @@ resource "docker_container" "crowdsec_container" {
     host_path      = var.TRAEFIK_LOG_PATH
     container_path = "/var/log/traefik"
   }
+
+  labels {
+    label = "traefik.enable"
+    value = "false"
+  }
 }

@@ -39,6 +39,6 @@ resource "docker_container" "adminer_container" {
 
   labels {
     label = "traefik.http.routers.adminer.middlewares"
-    value = "authentik-auth"
+    value = "secured"
   }
 }

@@ -150,7 +150,7 @@ resource "docker_container" "traefik_container" {
 
   labels {
     label = "traefik.http.middlewares.public.chain.middlewares"
-    value = ""
+    value = "crowdsec-bouncer"
   }
 
   # ── CrowdSec bouncer middleware (plugin) ────────────────────────────────
@@ -172,6 +172,12 @@ resource "docker_container" "traefik_container" {
   labels {
     label = "traefik.http.middlewares.crowdsec-bouncer.plugin.crowdsec-bouncer.crowdseclapischeme"
     value = "http"
+  }
+
+  # ── Secured chain (CrowdSec bouncer → Authentik auth) ─────────────────
+  labels {
+    label = "traefik.http.middlewares.secured.chain.middlewares"
+    value = "crowdsec-bouncer, authentik-auth"
   }
 
   labels {

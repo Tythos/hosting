@@ -30,10 +30,10 @@ resource "docker_container" "easton_container" {
     value = "websecure"
   }
 
-  # labels {
-  #   label = "traefik.http.routers.easton.middlewares"
-  #   value = "authentik-auth"
-  # }
+  labels {
+    label = "traefik.http.routers.easton.middlewares"
+    value = "secured"
+  }
 
   volumes {
     host_path      = var.STATE_PATH

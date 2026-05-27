@@ -30,10 +30,10 @@ resource "docker_container" "kifiew_container" {
     value = "websecure"
   }
 
-  # labels {
-  #   label = "traefik.http.routers.kifiew.middlewares"
-  #   value = "authentik-auth"
-  # }
+  labels {
+    label = "traefik.http.routers.kifiew.middlewares"
+    value = "secured"
+  }
 
   volumes {
     host_path      = var.STATE_PATH

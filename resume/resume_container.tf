@@ -28,6 +28,11 @@ resource "docker_container" "resume_container" {
     value = "websecure"
   }
 
+  labels {
+    label = "traefik.http.routers.resume.middlewares"
+    value = "public"
+  }
+
   volumes {
     host_path      = var.RESUME_MOUNT
     container_path = "/usr/share/nginx/html"

@@ -32,10 +32,10 @@ resource "docker_container" "smogwarts_container" {
     value = "websecure"
   }
 
-  # labels {
-  #   label = "traefik.http.routers.smogwarts.middlewares"
-  #   value = "authentik-auth"
-  # }
+  labels {
+    label = "traefik.http.routers.smogwarts.middlewares"
+    value = "public"
+  }
 
   volumes {
     host_path      = var.SMOGWARTS_MOUNT

@@ -36,10 +36,10 @@ resource "docker_container" "seafile_container" {
     value = "websecure"
   }
 
-  # labels {
-  #   label = "traefik.http.routers.seafile.middlewares"
-  #   value = "authentik-auth"
-  # }
+  labels {
+    label = "traefik.http.routers.seafile.middlewares"
+    value = "secured"
+  }
 
   #   labels {
   #     label = "traefik.http.middlewares.seafile.forwardedheaders.trustedips"

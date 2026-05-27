@@ -99,6 +99,11 @@ resource "docker_container" "forgejo_container" {
   }
 
   labels {
+    label = "traefik.http.routers.code.middlewares"
+    value = "public"
+  }
+
+  labels {
     label = "traefik.http.services.code.loadbalancer.server.port"
     value = "3000"
   }

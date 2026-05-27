@@ -24,3 +24,15 @@ scrape_configs:
       - targets: ['node_exporter_container:9100']
     scrape_interval: 15s
     scrape_timeout: 10s
+
+  - job_name: 'crowdsec'
+    static_configs:
+      - targets: ['crowdsec_container:6060']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    # CrowdSec exposes these metric families:
+    #   cs_active_decisions     - active bans by reason/action/origin
+    #   cs_alerts               - alert counts (excluding CAPI)
+    #   cs_reader_queue_length  - log reader queue depth
+    #   cs_bucket_capacity      - scenario bucket capacity remaining
+    #   go_*                    - Go runtime metrics

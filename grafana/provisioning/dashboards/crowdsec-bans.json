@@ -1,0 +1,179 @@
+{
+  "title": "CrowdSec Ban Activity",
+  "tags": ["crowdsec", "security"],
+  "schemaVersion": 39,
+  "version": 1,
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {},
+  "templating": {
+    "list": [
+      {
+        "name": "origin",
+        "type": "custom",
+        "query": "CAPI, crowdsec, cscli",
+        "current": { "selected": true, "text": "All", "value": "All" },
+        "includeAll": true,
+        "multi": true,
+        "label": "Origin"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "title": "Active Bans by Reason",
+      "type": "barchart",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (reason) (cs_active_decisions{action=\"ban\"})",
+          "legendFormat": "{{reason}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "bars", "fillOpacity": 80, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "auto", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "off" } },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "sorting": "desc"
+      }
+    },
+    {
+      "title": "Active Bans by Origin",
+      "type": "piechart",
+      "gridPos": { "h": 10, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (origin) (cs_active_decisions{action=\"ban\"})",
+          "legendFormat": "{{origin}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayLabels": ["name", "percent", "value"],
+        "legend": { "displayMode": "table", "placement": "right", "showLegend": true, "values": ["value"] },
+        "pieType": "pie",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false }
+      }
+    },
+    {
+      "title": "Total Active Bans",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(cs_active_decisions{action=\"ban\"})",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 500 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      }
+    },
+    {
+      "title": "Local vs CAPI Bans",
+      "type": "barchart",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 10 },
+      "targets": [
+        {
+          "expr": "sum by (origin) (cs_active_decisions{action=\"ban\"})",
+          "legendFormat": "{{origin}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0, "barWidthFactor": 0.6, "drawStyle": "bars", "fillOpacity": 80, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "auto", "spanNulls": false, "stacking": { "group": "A", "mode": "normal" }, "thresholdsStyle": { "mode": "off" } },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "auto",
+        "sorting": "desc"
+      }
+    },
+    {
+      "title": "Alert Count by Scenario (Last Hour)",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 10 },
+      "targets": [
+        {
+          "expr": "sum by (scenario) (cs_alerts)",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 20 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "enablePagination": true, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true,
+        "sortBy": []
+      }
+    }
+  ]
+}

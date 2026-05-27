@@ -27,4 +27,9 @@ resource "docker_container" "whoami_container" {
     label = "traefik.http.routers.whoami.entrypoints"
     value = "websecure"
   }
+
+  labels {
+    label = "traefik.http.routers.whoami.middlewares"
+    value = "public"
+  }
 }

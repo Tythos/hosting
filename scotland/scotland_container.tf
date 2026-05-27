@@ -30,8 +30,8 @@ resource "docker_container" "scotland_container" {
     value = "websecure"
   }
 
-  # labels {
-  #   label = "traefik.http.routers.scotland.middlewares"
-  #   value = "authentik-auth"
-  # }
+  labels {
+    label = "traefik.http.routers.scotland.middlewares"
+    value = "public"
+  }
 }

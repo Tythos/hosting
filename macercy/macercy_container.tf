@@ -30,10 +30,10 @@ resource "docker_container" "macercy_container" {
     value = "websecure"
   }
 
-  # labels {
-  #   label = "traefik.http.routers.macercy.middlewares"
-  #   value = "authentik-auth"
-  # }
+  labels {
+    label = "traefik.http.routers.macercy.middlewares"
+    value = "secured"
+  }
 
   volumes {
     host_path      = var.STATE_PATH

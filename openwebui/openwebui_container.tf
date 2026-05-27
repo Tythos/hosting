@@ -64,6 +64,11 @@ resource "docker_container" "openwebui_container" {
   }
 
   labels {
+    label = "traefik.http.routers.chat.middlewares"
+    value = "public"
+  }
+
+  labels {
     label = "traefik.http.routers.chat.service"
     value = "chat"
   }

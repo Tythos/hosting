@@ -1,5 +1,5 @@
 resource "docker_image" "minecraft_image" {
-  name         = "minecraft_image:latest"
+  name         = "minecraft_image"
   keep_locally = true
 
   build {

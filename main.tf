@@ -127,6 +127,14 @@ module "minecraft" {
   MINECRAFT_JAR_HASH   = var.MINECRAFT_JAR_HASH
 }
 
+module "n8n" {
+  source               = "./n8n"
+  HOST_NAME            = var.HOST_NAME
+  HOSTING_NETWORK_NAME = docker_network.hosting_network.name
+  STATE_PATH           = "${var.MOUNTED_VOLUME}/n8n"
+  N8N_ENCRYPTION_KEY   = var.N8N_ENCRYPTION_KEY
+}
+
 module "node_exporter" {
   source               = "./node_exporter"
   HOSTING_NETWORK_NAME = docker_network.hosting_network.name

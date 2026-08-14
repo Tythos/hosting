@@ -149,6 +149,11 @@ resource "docker_container" "traefik_container" {
   }
 
   labels {
+    label = "traefik.http.middlewares.authentik-auth.forwardAuth.maxResponseBodySize"
+    value = "1048576"
+  }
+
+  labels {
     label = "traefik.http.middlewares.public.chain.middlewares"
     value = "crowdsec-bouncer"
   }

@@ -1,6 +1,10 @@
 resource "docker_container" "traefik_container" {
-  name  = "traefik_container"
-  image = docker_image.traefik_image.image_id
+  name    = "traefik_container"
+  image   = docker_image.traefik_image.image_id
+  restart = "unless-stopped"
+
+  read_only = true
+  memory    = 512
 
   command = [
     "--api.dashboard=true",
@@ -13,6 +17,7 @@ resource "docker_container" "traefik_container" {
     "--entrypoints.ssh.address=:2222",
     "--entrypoints.minecraft.address=:25565",
     "--log.level=INFO",
+    "--ping",
     "--certificatesresolvers.letsencrypt.acme.email=${var.ACME_EMAIL}",
     "--certificatesresolvers.letsencrypt.acme.storage=/etc/letsencrypt/acme.json",
     "--certificatesresolvers.letsencrypt.acme.caserver=${var.LETSENCRYPT_ORIGIN}",
@@ -34,6 +39,13 @@ resource "docker_container" "traefik_container" {
     "--experimental.plugins.crowdsec-bouncer.moduleName=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin",
     "--experimental.plugins.crowdsec-bouncer.version=v1.6.0"
   ]
+
+  healthcheck {
+    test     = ["CMD", "traefik", "healthcheck", "--ping"]
+    interval = "30s"
+    timeout  = "3s"
+    retries  = 3
+  }
 
   env = [
     "CF_API_EMAIL=${var.ACME_EMAIL}",
@@ -68,6 +80,7 @@ resource "docker_container" "traefik_container" {
   volumes {
     host_path      = "/var/run/docker.sock"
     container_path = "/var/run/docker.sock"
+    read_only      = true
   }
 
   volumes {

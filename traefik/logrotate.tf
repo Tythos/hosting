@@ -9,9 +9,7 @@ resource "local_file" "logrotate_config" {
       delaycompress
       missingok
       notifempty
-      postrotate
-        docker kill -s HUP traefik_container > /dev/null 2>&1 || true
-      endscript
+      copytruncate
     }
   EOT
 }

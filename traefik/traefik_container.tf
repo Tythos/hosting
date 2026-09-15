@@ -84,6 +84,11 @@ resource "docker_container" "traefik_container" {
   }
 
   volumes {
+    host_path      = "${var.TRAEFIK_LOG_PATH}/plugins"
+    container_path = "/plugins-storage"
+  }
+
+  volumes {
     host_path      = "/etc/letsencrypt"
     container_path = "/etc/letsencrypt"
   }

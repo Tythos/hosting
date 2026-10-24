@@ -17,8 +17,8 @@ resource "docker_container" "authentik_worker_container" {
   }
 
   volumes {
-    container_path = "/media"
-    host_path      = "${var.STATE_PATH}/media"
+    container_path = "/data"
+    host_path      = "${var.STATE_PATH}/data"
   }
 
   volumes {

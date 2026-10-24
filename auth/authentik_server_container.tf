@@ -12,6 +12,8 @@ resource "docker_container" "authentik_server_container" {
 
   command = ["server"]
 
+  shm_size = 512
+
   networks_advanced {
     name = var.HOSTING_NETWORK_NAME
   }

@@ -128,7 +128,7 @@ We're seeing a lot of snooping every time a new service goes up. Which is strang
 
 - [x] **8.2** - *Traefik Middleware: Global Bad-Path Blocking*: This is the highest-leverage, lowest-effort win. Traefik supports Plugin and native IPAllowList/Headers middleware, but we can also use a redirectRegex or — better — a custom blockList via a plugin middleware or a chain with stripPrefix + a catch-all 403.
 
-  - [x] **8.2.1** - Deploy a "blackhole" container (nginx:alpine returning 403) registered as a Traefik service
+  - [x] **8.2.1** - Deploy a "blackhole" container (nginx:1.30.7-alpine returning 403) registered as a Traefik service
   - [x] **8.2.2** - Define HostRegexp + PathPrefix blocking routers on Traefik for common scanner probe paths
   - [x] **8.2.3** - Add Loki logging to the blackhole container for blocked-request auditing
   - [x] **8.2.4** - Verify blocking works and normal traffic is unaffected
